@@ -762,12 +762,12 @@ class TruffleGenerationGoloIrVisitor implements GoloIrVisitor {
     }
   }
 
-  private OrNode orOperator(BinaryOperation binaryOperation) {
+  private OrNode orOperator(final BinaryOperation binaryOperation) {
 	return new OrNode(binaryOperation.getLeftExpression().accept(this),
 			binaryOperation.getRightExpression().accept(this));
   }
 
-  private void andOperator(BinaryOperation binaryOperation) {
+  private void andOperator(final BinaryOperation binaryOperation) {
 	return new AndNode(binaryOperation.getLeftExpression().accept(this),
 			binaryOperation.getRightExpression().accept(this));
   }
