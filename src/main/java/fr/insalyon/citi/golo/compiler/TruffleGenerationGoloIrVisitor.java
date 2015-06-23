@@ -36,6 +36,17 @@ import static java.lang.invoke.MethodType.methodType;
 import static org.objectweb.asm.ClassWriter.COMPUTE_FRAMES;
 import static org.objectweb.asm.ClassWriter.COMPUTE_MAXS;
 import static org.objectweb.asm.Opcodes.*;
+import gololang.truffle.OrNode;
+import gololang.truffle.literals.LiteralNode;
+import gololang.truffle.literals.LiteralNode.CharacterLiteralNode;
+import gololang.truffle.literals.LiteralNode.DoubleLiteralNode;
+import gololang.truffle.literals.LiteralNode.FalseLiteralNode;
+import gololang.truffle.literals.LiteralNode.FloatLiteralNode;
+import gololang.truffle.literals.LiteralNode.IntegerLiteralNode;
+import gololang.truffle.literals.LiteralNode.LongLiteralNode;
+import gololang.truffle.literals.LiteralNode.NullLiteralNode;
+import gololang.truffle.literals.LiteralNode.StringLiteralNode;
+import gololang.truffle.literals.LiteralNode.TrueLiteralNode;
 
 class TruffleGenerationGoloIrVisitor implements GoloIrVisitor {
 
@@ -309,44 +320,41 @@ class TruffleGenerationGoloIrVisitor implements GoloIrVisitor {
   }
 
   @Override
-  public void visitConstantStatement(ConstantStatement constantStatement) {
+  public LiteralNode visitConstantStatement(final ConstantStatement constantStatement) {
     Object value = constantStatement.getValue();
     if (value == null) {
-      methodVisitor.visitInsn(ACONST_NULL);
-      return;
+      return new NullLiteralNode();
     }
     if (value instanceof Integer) {
-      int i = (Integer) value;
-      loadInteger(methodVisitor, i);
-      methodVisitor.visitMethodInsn(INVOKESTATIC, "java/lang/Integer", "valueOf", "(I)Ljava/lang/Integer;", false);
-      return;
+      return new IntegerLiteralNode((Integer) value);
     }
     if (value instanceof Long) {
-      long l = (Long) value;
-      loadLong(methodVisitor, l);
-      methodVisitor.visitMethodInsn(INVOKESTATIC, "java/lang/Long", "valueOf", "(J)Ljava/lang/Long;", false);
-      return;
+      return new LongLiteralNode((Long) value);
     }
     if (value instanceof Boolean) {
-      boolean b = (Boolean) value;
-      loadInteger(methodVisitor, b ? 1 : 0);
-      methodVisitor.visitMethodInsn(INVOKESTATIC, "java/lang/Boolean", "valueOf", "(Z)Ljava/lang/Boolean;", false);
-      return;
+      if ((Boolean) value) {
+        return new TrueLiteralNode();
+      } else {
+        return new FalseLiteralNode();
+      }
     }
     if (value instanceof String) {
-      methodVisitor.visitLdcInsn(value);
-      return;
+      return new StringLiteralNode((String) value);
     }
     if (value instanceof Character) {
-      loadInteger(methodVisitor, (Character) value);
-      methodVisitor.visitMethodInsn(INVOKESTATIC, "java/lang/Character", "valueOf", "(C)Ljava/lang/Character;", false);
-      return;
+      return new CharacterLiteralNode((Character) value);
     }
+
+    // TODO: figure out what exactly is happening here. At runtime, do we need some form of GoloClass object?
+    //       or is the ParserClassRef sufficient for Truffle? Probably not, because we can't do anything with it
     if (value instanceof GoloParser.ParserClassRef) {
       GoloParser.ParserClassRef ref = (GoloParser.ParserClassRef) value;
       methodVisitor.visitInvokeDynamicInsn(ref.name.replaceAll("\\.", "#"), "()Ljava/lang/Class;", CLASSREF_HANDLE);
       return;
     }
+
+    // TODO: same as with ClassRef, we probably need some proper function object (which, also probably should either
+    //       be, or at least contain a Truffle RootNode
     if (value instanceof GoloParser.FunctionRef) {
       GoloParser.FunctionRef ref = (GoloParser.FunctionRef) value;
       String module = ref.module;
@@ -363,16 +371,10 @@ class TruffleGenerationGoloIrVisitor implements GoloIrVisitor {
       return;
     }
     if (value instanceof Double) {
-      double d = (Double) value;
-      methodVisitor.visitLdcInsn(d);
-      methodVisitor.visitMethodInsn(INVOKESTATIC, "java/lang/Double", "valueOf", "(D)Ljava/lang/Double;", false);
-      return;
+      return new DoubleLiteralNode((Double) value);
     }
     if (value instanceof Float) {
-      float f = (Float) value;
-      methodVisitor.visitLdcInsn(f);
-      methodVisitor.visitMethodInsn(INVOKESTATIC, "java/lang/Float", "valueOf", "(F)Ljava/lang/Float;", false);
-      return;
+      return new FloatLiteralNode((Float) value);
     }
     throw new IllegalArgumentException("Constants of type " + value.getClass() + " cannot be handled.");
   }
