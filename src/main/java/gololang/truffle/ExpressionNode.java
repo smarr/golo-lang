@@ -47,4 +47,8 @@ public abstract class ExpressionNode extends Node {
   public FunctionRef executeFunctionRef(final VirtualFrame frame) throws UnexpectedResultException {
     return TypesGen.expectFunctionRef(executeGeneric(frame));
   }
+
+  public Throwable executeThrowable(final VirtualFrame frame) throws UnexpectedResultException {
+    return TypesGen.expectThrowable(executeGeneric(frame));
+  }
 }

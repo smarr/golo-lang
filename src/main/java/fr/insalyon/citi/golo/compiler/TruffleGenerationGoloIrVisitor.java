@@ -37,6 +37,7 @@ import static org.objectweb.asm.ClassWriter.COMPUTE_FRAMES;
 import static org.objectweb.asm.ClassWriter.COMPUTE_MAXS;
 import static org.objectweb.asm.Opcodes.*;
 import gololang.truffle.OrNode;
+import gololang.truffle.ThrowNodeGen;
 import gololang.truffle.literals.LiteralNode;
 import gololang.truffle.literals.LiteralNode.CharacterLiteralNode;
 import gololang.truffle.literals.LiteralNode.DoubleLiteralNode;
@@ -391,10 +392,8 @@ class TruffleGenerationGoloIrVisitor implements GoloIrVisitor {
   }
 
   @Override
-  public void visitThrowStatement(ThrowStatement throwStatement) {
-    throwStatement.getExpressionStatement().accept(this);
-    methodVisitor.visitTypeInsn(CHECKCAST, "java/lang/Throwable");
-    methodVisitor.visitInsn(ATHROW);
+  public void visitThrowStatement(final ThrowStatement throwStatement) {
+    return ThrowNodeGen.create(throwStatement.getExpressionStatement().accept(this));
   }
 
   private List<String> visitInvocationArguments(AbstractInvocation invocation) {
