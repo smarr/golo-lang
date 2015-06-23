@@ -227,6 +227,18 @@
       <version>1.2.3</version>
       <scope>test</scope>
     </dependency>
+    
+    <dependency>
+      <groupId>com.oracle</groupId>
+      <artifactId>truffle</artifactId>
+      <version>0.7</version>
+    </dependency>
+    <dependency>
+      <groupId>com.oracle</groupId>
+      <artifactId>truffle-dsl-processor</artifactId>
+      <version>0.7</version>
+      <scope>provided</scope>
+    </dependency>
 
     <dependency>
       <groupId>org.testng</groupId>
