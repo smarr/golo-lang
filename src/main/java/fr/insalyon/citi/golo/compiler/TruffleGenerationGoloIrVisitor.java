@@ -289,7 +289,6 @@ class TruffleGenerationGoloIrVisitor implements GoloIrVisitor {
     for (GoloStatement statement : block.getStatements()) {
       visitLine(statement, methodVisitor);
       statement.accept(this);
-      insertMissingPop(statement);
     }
     methodVisitor.visitLabel(blockEnd);
     for (LocalReference localReference : referenceTable.ownedReferences()) {
@@ -300,18 +299,6 @@ class TruffleGenerationGoloIrVisitor implements GoloIrVisitor {
           blockStart, blockEnd, localReference.getIndex());
     }
     context.referenceTableStack.pop();
-  }
-
-  private void insertMissingPop(GoloStatement statement) {
-    Class<? extends GoloStatement> statementClass = statement.getClass();
-    if (statementClass == FunctionInvocation.class) {
-      methodVisitor.visitInsn(POP);
-    } else if (statementClass == BinaryOperation.class) {
-      BinaryOperation operation = (BinaryOperation) statement;
-      if (isMethodCall(operation)) {
-        methodVisitor.visitInsn(POP);
-      }
-    }
   }
 
   private boolean isMethodCall(BinaryOperation operation) {
