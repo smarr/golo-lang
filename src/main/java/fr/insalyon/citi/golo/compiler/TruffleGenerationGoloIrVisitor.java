@@ -368,7 +368,10 @@ class TruffleGenerationGoloIrVisitor implements GoloIrVisitor {
   }
 
   @Override
-  public void visitReturnStatement(ReturnStatement returnStatement) {
+  public void visitReturnStatement(final ReturnStatement returnStatement) {
+    // TODO: ok, if we are at the end of a function, we don't want a return exception
+    //       only and only if we are really in some nested expression, we need to throw an exception
+    //       otherwise, we can always just return here the expression statement directly
     returnStatement.getExpressionStatement().accept(this);
     if (returnStatement.isReturningVoid()) {
       methodVisitor.visitInsn(RETURN);
