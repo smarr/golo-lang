@@ -16,10 +16,9 @@
 
 package fr.insalyon.citi.golo.compiler.ir;
 
+import static java.util.Collections.unmodifiableList;
 import java.util.LinkedList;
 import java.util.List;
-
-import static java.util.Collections.unmodifiableList;
 
 public final class GoloFunction extends ExpressionStatement {
 
@@ -46,7 +45,7 @@ public final class GoloFunction extends ExpressionStatement {
   private String decoratorRef = null;
   private LinkedList<Decorator> decorators = new LinkedList<>();
 
-  public GoloFunction(String name, Visibility visibility, Scope scope) {
+  public GoloFunction(final String name, final Visibility visibility, final Scope scope) {
     this.name = name;
     this.visibility = visibility;
     this.scope = scope;
@@ -70,21 +69,21 @@ public final class GoloFunction extends ExpressionStatement {
     return unmodifiableList(syntheticParameterNames);
   }
 
-  public void setParameterNames(List<String> parameterNames) {
+  public void setParameterNames(final List<String> parameterNames) {
     this.parameterNames.addAll(parameterNames);
   }
 
-  public void addSyntheticParameter(String name) {
+  public void addSyntheticParameter(final String name) {
     this.syntheticParameterNames.add(name);
     this.syntheticParameterCount = this.syntheticParameterCount + 1;
   }
 
-  public void removeSyntheticParameter(String name) {
+  public void removeSyntheticParameter(final String name) {
     this.syntheticParameterNames.remove(name);
     this.syntheticParameterCount = this.syntheticParameterCount - 1;
   }
 
-  public void setVarargs(boolean varargs) {
+  public void setVarargs(final boolean varargs) {
     this.varargs = varargs;
   }
 
@@ -96,7 +95,7 @@ public final class GoloFunction extends ExpressionStatement {
     return synthetic;
   }
 
-  public void setSynthetic(boolean synthetic) {
+  public void setSynthetic(final boolean synthetic) {
     this.synthetic = synthetic;
   }
 
@@ -108,7 +107,7 @@ public final class GoloFunction extends ExpressionStatement {
     return decorator;
   }
 
-  public void setDecorator(boolean decorator) {
+  public void setDecorator(final boolean decorator) {
     this.decorator = decorator;
   }
 
@@ -116,7 +115,7 @@ public final class GoloFunction extends ExpressionStatement {
     return syntheticSelfName;
   }
 
-  public void setSyntheticSelfName(String syntheticSelfName) {
+  public void setSyntheticSelfName(final String syntheticSelfName) {
     this.syntheticSelfName = syntheticSelfName;
   }
 
@@ -124,7 +123,7 @@ public final class GoloFunction extends ExpressionStatement {
     return decoratorRef;
   }
 
-  public void setDecoratorRef(String decoratorRef) {
+  public void setDecoratorRef(final String decoratorRef) {
     this.decoratorRef = decoratorRef;
   }
 
@@ -144,11 +143,11 @@ public final class GoloFunction extends ExpressionStatement {
     return block;
   }
 
-  public void setBlock(Block block) {
+  public void setBlock(final Block block) {
     this.block = block;
   }
 
-  public void addDecorator(Decorator decorator) {
+  public void addDecorator(final Decorator decorator) {
     this.decorators.addLast(decorator);
   }
 
@@ -164,7 +163,7 @@ public final class GoloFunction extends ExpressionStatement {
     return "<clinit>".equals(name);
   }
 
-  public void accept(GoloIrVisitor visitor) {
+  public void accept(final GoloIrVisitor visitor) {
     visitor.visitFunction(this);
   }
 }

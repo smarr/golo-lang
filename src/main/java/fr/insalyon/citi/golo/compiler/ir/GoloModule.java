@@ -16,14 +16,19 @@
 
 package fr.insalyon.citi.golo.compiler.ir;
 
-import fr.insalyon.citi.golo.compiler.PackageAndClass;
-import fr.insalyon.citi.golo.compiler.utils.Register;
-import fr.insalyon.citi.golo.compiler.utils.AbstractRegister;
-
-import java.util.*;
-
 import static java.util.Collections.unmodifiableMap;
 import static java.util.Collections.unmodifiableSet;
+
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
+import java.util.Map;
+import java.util.Set;
+
+import fr.insalyon.citi.golo.compiler.PackageAndClass;
+import fr.insalyon.citi.golo.compiler.utils.AbstractRegister;
+import fr.insalyon.citi.golo.compiler.utils.Register;
 
 
 class FunctionRegister extends AbstractRegister<String, GoloFunction> {
@@ -80,7 +85,7 @@ public final class GoloModule extends GoloElement {
 
   public static final String MODULE_INITIALIZER_FUNCTION = "<clinit>";
 
-  public GoloModule(PackageAndClass packageAndClass) {
+  public GoloModule(final PackageAndClass packageAndClass) {
     this.packageAndClass = packageAndClass;
     imports.add(PREDEF);
     imports.add(STD_AUGMENTATIONS);
@@ -88,7 +93,7 @@ public final class GoloModule extends GoloElement {
     imports.add(JAVALANG);
   }
 
-  public void addModuleStateInitializer(ReferenceTable table, AssignmentStatement assignment) {
+  public void addModuleStateInitializer(final ReferenceTable table, final AssignmentStatement assignment) {
     if (moduleStateInitializer == null) {
       moduleStateInitializer = new GoloFunction(MODULE_INITIALIZER_FUNCTION, GoloFunction.Visibility.PUBLIC, GoloFunction.Scope.MODULE);
       moduleStateInitializer.setBlock(new Block(table));
@@ -129,37 +134,37 @@ public final class GoloModule extends GoloElement {
     return unmodifiableSet(moduleState);
   }
 
-  public void addImport(ModuleImport moduleImport) {
+  public void addImport(final ModuleImport moduleImport) {
     imports.add(moduleImport);
   }
 
-  public void addFunction(GoloFunction function) {
+  public void addFunction(final GoloFunction function) {
     functions.add(function);
   }
 
 
-  public void addNamedAugmentation(String name, GoloFunction function) {
+  public void addNamedAugmentation(final String name, final GoloFunction function) {
     namedAugmentations.add(name, function);
   }
 
-  public void addAugmentation(String target, GoloFunction function) {
+  public void addAugmentation(final String target, final GoloFunction function) {
     augmentations.add(target, function);
   }
 
-  public void addAugmentationApplication(String target,
-                                         Collection<String> augmentNames) {
+  public void addAugmentationApplication(final String target,
+                                         final Collection<String> augmentNames) {
     augmentationApplications.addAll(target, augmentNames);
   }
 
-  public void addStruct(Struct struct) {
+  public void addStruct(final Struct struct) {
     structs.add(struct);
   }
 
-  public void addUnion(Union e) {
+  public void addUnion(final Union e) {
     unions.add(e);
   }
 
-  public void addLocalState(LocalReference reference) {
+  public void addLocalState(final LocalReference reference) {
     moduleState.add(reference);
   }
 
@@ -167,11 +172,11 @@ public final class GoloModule extends GoloElement {
     return unmodifiableSet(functions);
   }
 
-  public void accept(GoloIrVisitor visitor) {
+  public void accept(final GoloIrVisitor visitor) {
     visitor.visitModule(this);
   }
 
-  private void internTypesAugmentations(Set<String> structNames, Register<String,?> augmentations) {
+  private void internTypesAugmentations(final Set<String> structNames, final Register<String,?> augmentations) {
     HashSet<String> trash = new HashSet<>();
     for (String augmentation : augmentations.keySet()) {
       if (structNames.contains(augmentation)) {

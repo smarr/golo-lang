@@ -16,10 +16,9 @@
 
 package fr.insalyon.citi.golo.compiler.ir;
 
+import static java.util.Collections.unmodifiableList;
 import java.util.LinkedList;
 import java.util.List;
-
-import static java.util.Collections.unmodifiableList;
 
 public final class Block extends ExpressionStatement {
 
@@ -28,7 +27,7 @@ public final class Block extends ExpressionStatement {
 
   private boolean hasReturn = false;
 
-  public Block(ReferenceTable referenceTable) {
+  public Block(final ReferenceTable referenceTable) {
     super();
     this.referenceTable = referenceTable;
   }
@@ -45,17 +44,17 @@ public final class Block extends ExpressionStatement {
     return unmodifiableList(statements);
   }
 
-  public void addStatement(GoloStatement statement) {
+  public void addStatement(final GoloStatement statement) {
     statements.add(statement);
     checkForReturns(statement);
   }
 
-  public void prependStatement(GoloStatement statement) {
+  public void prependStatement(final GoloStatement statement) {
     statements.add(0, statement);
     checkForReturns(statement);
   }
 
-  private void checkForReturns(GoloStatement statement) {
+  private void checkForReturns(final GoloStatement statement) {
     if ((statement instanceof ReturnStatement) || (statement instanceof ThrowStatement)) {
       hasReturn = true;
     } else if (statement instanceof ConditionalBranching) {
@@ -67,7 +66,7 @@ public final class Block extends ExpressionStatement {
     return hasReturn;
   }
 
-  public void accept(GoloIrVisitor visitor) {
+  public void accept(final GoloIrVisitor visitor) {
     visitor.visitBlock(this);
   }
 }

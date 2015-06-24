@@ -28,7 +28,7 @@ public class FunctionInvocation extends AbstractInvocation {
     anonymous = true;
   }
 
-  public FunctionInvocation(String name) {
+  public FunctionInvocation(final String name) {
     super(name);
   }
 
@@ -36,7 +36,7 @@ public class FunctionInvocation extends AbstractInvocation {
     return onReference;
   }
 
-  public void setOnReference(boolean onReference) {
+  public void setOnReference(final boolean onReference) {
     this.onReference = onReference;
   }
 
@@ -48,7 +48,7 @@ public class FunctionInvocation extends AbstractInvocation {
     return onModuleState;
   }
 
-  public void setOnModuleState(boolean onModuleState) {
+  public void setOnModuleState(final boolean onModuleState) {
     this.onModuleState = onModuleState;
   }
 
@@ -56,12 +56,12 @@ public class FunctionInvocation extends AbstractInvocation {
     return constant;
   }
 
-  public void setConstant(boolean constant) {
+  public void setConstant(final boolean constant) {
     this.constant = constant;
   }
 
   @Override
-  public void accept(GoloIrVisitor visitor) {
+  public void accept(final GoloIrVisitor visitor) {
     visitor.visitFunctionInvocation(this);
   }
 }

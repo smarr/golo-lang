@@ -16,26 +16,86 @@
 
 package fr.insalyon.citi.golo.compiler;
 
-import fr.insalyon.citi.golo.compiler.ir.*;
-import fr.insalyon.citi.golo.compiler.parser.GoloParser;
-import fr.insalyon.citi.golo.runtime.OperatorType;
-import gololang.FunctionReference;
-import gololang.truffle.literals.LiteralNode;
-
-import org.objectweb.asm.*;
-
-import java.lang.invoke.MethodHandle;
-import java.lang.invoke.MethodType;
-import java.util.*;
-
-import static fr.insalyon.citi.golo.compiler.JavaBytecodeUtils.*;
-import static fr.insalyon.citi.golo.compiler.ir.GoloFunction.Visibility.PUBLIC;
-import static fr.insalyon.citi.golo.runtime.OperatorType.*;
-import static java.lang.invoke.MethodType.genericMethodType;
+import static fr.insalyon.citi.golo.compiler.JavaBytecodeUtils.loadInteger;
+import static fr.insalyon.citi.golo.runtime.OperatorType.AND;
+import static fr.insalyon.citi.golo.runtime.OperatorType.ANON_CALL;
+import static fr.insalyon.citi.golo.runtime.OperatorType.ELVIS_METHOD_CALL;
+import static fr.insalyon.citi.golo.runtime.OperatorType.METHOD_CALL;
+import static fr.insalyon.citi.golo.runtime.OperatorType.OR;
 import static java.lang.invoke.MethodType.methodType;
 import static org.objectweb.asm.ClassWriter.COMPUTE_FRAMES;
 import static org.objectweb.asm.ClassWriter.COMPUTE_MAXS;
-import static org.objectweb.asm.Opcodes.*;
+import static org.objectweb.asm.Opcodes.AASTORE;
+import static org.objectweb.asm.Opcodes.ACC_PRIVATE;
+import static org.objectweb.asm.Opcodes.ACC_PUBLIC;
+import static org.objectweb.asm.Opcodes.ACC_STATIC;
+import static org.objectweb.asm.Opcodes.ACC_SUPER;
+import static org.objectweb.asm.Opcodes.ACC_SYNTHETIC;
+import static org.objectweb.asm.Opcodes.ALOAD;
+import static org.objectweb.asm.Opcodes.ANEWARRAY;
+import static org.objectweb.asm.Opcodes.ARETURN;
+import static org.objectweb.asm.Opcodes.ASTORE;
+import static org.objectweb.asm.Opcodes.ATHROW;
+import static org.objectweb.asm.Opcodes.CHECKCAST;
+import static org.objectweb.asm.Opcodes.DUP;
+import static org.objectweb.asm.Opcodes.GETSTATIC;
+import static org.objectweb.asm.Opcodes.GOTO;
+import static org.objectweb.asm.Opcodes.IFEQ;
+import static org.objectweb.asm.Opcodes.ILOAD;
+import static org.objectweb.asm.Opcodes.INVOKESPECIAL;
+import static org.objectweb.asm.Opcodes.INVOKEVIRTUAL;
+import static org.objectweb.asm.Opcodes.NEW;
+import static org.objectweb.asm.Opcodes.POP;
+import static org.objectweb.asm.Opcodes.PUTSTATIC;
+import static org.objectweb.asm.Opcodes.RETURN;
+import static org.objectweb.asm.Opcodes.SWAP;
+import static org.objectweb.asm.Opcodes.V1_8;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Deque;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import jdk.nashorn.internal.ir.BinaryNode;
+
+import org.objectweb.asm.ClassWriter;
+import org.objectweb.asm.Label;
+import org.objectweb.asm.MethodVisitor;
+import org.objectweb.asm.Type;
+
+import fr.insalyon.citi.golo.compiler.ir.AbstractInvocation;
+import fr.insalyon.citi.golo.compiler.ir.AssignmentStatement;
+import fr.insalyon.citi.golo.compiler.ir.BinaryOperation;
+import fr.insalyon.citi.golo.compiler.ir.Block;
+import fr.insalyon.citi.golo.compiler.ir.ClosureReference;
+import fr.insalyon.citi.golo.compiler.ir.CollectionLiteral;
+import fr.insalyon.citi.golo.compiler.ir.ConditionalBranching;
+import fr.insalyon.citi.golo.compiler.ir.ConstantStatement;
+import fr.insalyon.citi.golo.compiler.ir.Decorator;
+import fr.insalyon.citi.golo.compiler.ir.ExpressionStatement;
+import fr.insalyon.citi.golo.compiler.ir.FunctionInvocation;
+import fr.insalyon.citi.golo.compiler.ir.GoloFunction;
+import fr.insalyon.citi.golo.compiler.ir.GoloModule;
+import fr.insalyon.citi.golo.compiler.ir.GoloStatement;
+import fr.insalyon.citi.golo.compiler.ir.LocalReference;
+import fr.insalyon.citi.golo.compiler.ir.LoopBreakFlowStatement;
+import fr.insalyon.citi.golo.compiler.ir.LoopStatement;
+import fr.insalyon.citi.golo.compiler.ir.MethodInvocation;
+import fr.insalyon.citi.golo.compiler.ir.ModuleImport;
+import fr.insalyon.citi.golo.compiler.ir.ReferenceLookup;
+import fr.insalyon.citi.golo.compiler.ir.ReferenceTable;
+import fr.insalyon.citi.golo.compiler.ir.ReturnStatement;
+import fr.insalyon.citi.golo.compiler.ir.ThrowStatement;
+import fr.insalyon.citi.golo.compiler.ir.TryCatchFinally;
+import fr.insalyon.citi.golo.compiler.ir.UnaryOperation;
+import fr.insalyon.citi.golo.compiler.parser.GoloParser;
+import fr.insalyon.citi.golo.runtime.OperatorType;
 import gololang.truffle.OrNode;
 import gololang.truffle.ThrowNodeGen;
 import gololang.truffle.literals.LiteralNode;
@@ -61,14 +121,14 @@ class TruffleGenerationGoloIrVisitor implements GoloIrVisitor {
     private final Map<LoopStatement, Label> loopEndMap = new HashMap<>();
   }
 
-  public void generateRepresentation(GoloModule module) {
+  public void generateRepresentation(final GoloModule module) {
 
     this.notSureYetPerhaps_callTargets = new LinkedList<>();
     this.context = new Context();
-    
+
     module.accept(this);
 
-    
+
 //    return this.generationResults;
   }
 
@@ -123,7 +183,7 @@ class TruffleGenerationGoloIrVisitor implements GoloIrVisitor {
     mv.visitEnd();
   }
 
-  private void writeAugmentationApplicationsMetaData(Map<String, Set<String>> applications) {
+  private void writeAugmentationApplicationsMetaData(final Map<String, Set<String>> applications) {
     /* create a metadata method that given a target class name hashcode
      * returns a String array containing the names of applied
      * augmentations
@@ -139,7 +199,7 @@ class TruffleGenerationGoloIrVisitor implements GoloIrVisitor {
     // cases of the switch statement MUST be sorted
     Collections.sort(applicationNames, new Comparator<String>(){
       @Override
-      public int compare(String o1, String o2) {
+      public int compare(final String o1, final String o2) {
         return Integer.compare(o1.hashCode(), o2.hashCode());
       }
     });
@@ -428,7 +488,7 @@ class TruffleGenerationGoloIrVisitor implements GoloIrVisitor {
   }
 
   @Override
-  public void visitMethodInvocation(MethodInvocation methodInvocation) {
+  public void visitMethodInvocation(final MethodInvocation methodInvocation) {
     List<Object> bootstrapArgs = new ArrayList<>();
     bootstrapArgs.add(methodInvocation.isNullSafeGuarded() ? 1 : 0);
     List<String> argumentNames = visitInvocationArguments(methodInvocation);
@@ -444,7 +504,7 @@ class TruffleGenerationGoloIrVisitor implements GoloIrVisitor {
   }
 
   @Override
-  public void visitAssignmentStatement(AssignmentStatement assignmentStatement) {
+  public void visitAssignmentStatement(final AssignmentStatement assignmentStatement) {
     assignmentStatement.getExpressionStatement().accept(this);
     LocalReference reference = assignmentStatement.getLocalReference();
     if (reference.isModuleState()) {
@@ -459,7 +519,7 @@ class TruffleGenerationGoloIrVisitor implements GoloIrVisitor {
   }
 
   @Override
-  public void visitReferenceLookup(ReferenceLookup referenceLookup) {
+  public void visitReferenceLookup(final ReferenceLookup referenceLookup) {
     LocalReference reference = referenceLookup.resolveIn(context.referenceTableStack.peek());
     if (reference.isModuleState()) {
       methodVisitor.visitInvokeDynamicInsn(
@@ -473,7 +533,7 @@ class TruffleGenerationGoloIrVisitor implements GoloIrVisitor {
   }
 
   @Override
-  public void visitConditionalBranching(ConditionalBranching conditionalBranching) {
+  public void visitConditionalBranching(final ConditionalBranching conditionalBranching) {
     Label branchingElseLabel = new Label();
     Label branchingExitLabel = new Label();
     conditionalBranching.getCondition().accept(this);
@@ -500,7 +560,7 @@ class TruffleGenerationGoloIrVisitor implements GoloIrVisitor {
   }
 
   @Override
-  public void visitLoopStatement(LoopStatement loopStatement) {
+  public void visitLoopStatement(final LoopStatement loopStatement) {
     // TODO handle init and post statement and potential reference scoping issues
     Label loopStart = new Label();
     Label loopEnd = new Label();
@@ -522,7 +582,7 @@ class TruffleGenerationGoloIrVisitor implements GoloIrVisitor {
   }
 
   @Override
-  public void visitLoopBreakFlowStatement(LoopBreakFlowStatement loopBreakFlowStatement) {
+  public void visitLoopBreakFlowStatement(final LoopBreakFlowStatement loopBreakFlowStatement) {
     Label jumpTarget;
     if (LoopBreakFlowStatement.Type.BREAK.equals(loopBreakFlowStatement.getType())) {
       jumpTarget = context.loopEndMap.get(loopBreakFlowStatement.getEnclosingLoop());
@@ -536,7 +596,7 @@ class TruffleGenerationGoloIrVisitor implements GoloIrVisitor {
   }
 
   @Override
-  public void visitCollectionLiteral(CollectionLiteral collectionLiteral) {
+  public void visitCollectionLiteral(final CollectionLiteral collectionLiteral) {
     switch (collectionLiteral.getType()) {
       case tuple:
         createTuple(collectionLiteral);
@@ -561,7 +621,7 @@ class TruffleGenerationGoloIrVisitor implements GoloIrVisitor {
     }
   }
 
-  private void createMap(CollectionLiteral collectionLiteral) {
+  private void createMap(final CollectionLiteral collectionLiteral) {
     methodVisitor.visitTypeInsn(NEW, "java/util/LinkedHashMap");
     methodVisitor.visitInsn(DUP);
     methodVisitor.visitMethodInsn(INVOKESPECIAL, "java/util/LinkedHashMap", "<init>", "()V", false);
@@ -580,7 +640,7 @@ class TruffleGenerationGoloIrVisitor implements GoloIrVisitor {
     }
   }
 
-  private void createSet(CollectionLiteral collectionLiteral) {
+  private void createSet(final CollectionLiteral collectionLiteral) {
     methodVisitor.visitTypeInsn(NEW, "java/util/LinkedHashSet");
     methodVisitor.visitInsn(DUP);
     methodVisitor.visitMethodInsn(INVOKESPECIAL, "java/util/LinkedHashSet", "<init>", "()V", false);
@@ -592,7 +652,7 @@ class TruffleGenerationGoloIrVisitor implements GoloIrVisitor {
     }
   }
 
-  private void createVector(CollectionLiteral collectionLiteral) {
+  private void createVector(final CollectionLiteral collectionLiteral) {
     methodVisitor.visitTypeInsn(NEW, "java/util/ArrayList");
     methodVisitor.visitInsn(DUP);
     loadInteger(methodVisitor, collectionLiteral.getExpressions().size());
@@ -605,7 +665,7 @@ class TruffleGenerationGoloIrVisitor implements GoloIrVisitor {
     }
   }
 
-  private void createList(CollectionLiteral collectionLiteral) {
+  private void createList(final CollectionLiteral collectionLiteral) {
     methodVisitor.visitTypeInsn(NEW, "java/util/LinkedList");
     methodVisitor.visitInsn(DUP);
     methodVisitor.visitMethodInsn(INVOKESPECIAL, "java/util/LinkedList", "<init>", "()V", false);
@@ -617,7 +677,7 @@ class TruffleGenerationGoloIrVisitor implements GoloIrVisitor {
     }
   }
 
-  private void createArray(CollectionLiteral collectionLiteral) {
+  private void createArray(final CollectionLiteral collectionLiteral) {
     loadInteger(methodVisitor, collectionLiteral.getExpressions().size());
     methodVisitor.visitTypeInsn(ANEWARRAY, "java/lang/Object");
     int i = 0;
@@ -630,7 +690,7 @@ class TruffleGenerationGoloIrVisitor implements GoloIrVisitor {
     }
   }
 
-  private void createTuple(CollectionLiteral collectionLiteral) {
+  private void createTuple(final CollectionLiteral collectionLiteral) {
     methodVisitor.visitTypeInsn(NEW, "gololang/Tuple");
     methodVisitor.visitInsn(DUP);
     createArray(collectionLiteral);
@@ -638,7 +698,7 @@ class TruffleGenerationGoloIrVisitor implements GoloIrVisitor {
   }
 
   @Override
-  public void visitTryCatchFinally(TryCatchFinally tryCatchFinally) {
+  public void visitTryCatchFinally(final TryCatchFinally tryCatchFinally) {
     Label tryStart = new Label();
     Label tryEnd = new Label();
     Label catchStart = new Label();
@@ -691,7 +751,7 @@ class TruffleGenerationGoloIrVisitor implements GoloIrVisitor {
   }
 
   @Override
-  public void visitClosureReference(ClosureReference closureReference) {
+  public void visitClosureReference(final ClosureReference closureReference) {
     GoloFunction target = closureReference.getTarget();
     final boolean isVarArgs = target.isVarargs();
     final int arity = (isVarArgs) ? target.getArity() - 1 : target.getArity();
@@ -732,7 +792,7 @@ class TruffleGenerationGoloIrVisitor implements GoloIrVisitor {
   }
 
   @Override
-  public BinaryNode visitBinaryOperation(BinaryOperation binaryOperation) {
+  public BinaryNode visitBinaryOperation(final BinaryOperation binaryOperation) {
     OperatorType operatorType = binaryOperation.getType();
     if (AND.equals(operatorType)) {
       return andOperator(binaryOperation);
@@ -743,7 +803,7 @@ class TruffleGenerationGoloIrVisitor implements GoloIrVisitor {
     }
   }
 
-  private void genericBinaryOperator(BinaryOperation binaryOperation, OperatorType operatorType) {
+  private void genericBinaryOperator(final BinaryOperation binaryOperation, final OperatorType operatorType) {
     binaryOperation.getLeftExpression().accept(this);
     binaryOperation.getRightExpression().accept(this);
     if (!isMethodCall(binaryOperation)) {
@@ -763,7 +823,7 @@ class TruffleGenerationGoloIrVisitor implements GoloIrVisitor {
   }
 
   @Override
-  public void visitUnaryOperation(UnaryOperation unaryOperation) {
+  public void visitUnaryOperation(final UnaryOperation unaryOperation) {
     String name = unaryOperation.getType().name().toLowerCase();
     unaryOperation.getExpressionStatement().accept(this);
     methodVisitor.visitInvokeDynamicInsn(name, goloFunctionSignature(1), OPERATOR_HANDLE, (Integer) 1);

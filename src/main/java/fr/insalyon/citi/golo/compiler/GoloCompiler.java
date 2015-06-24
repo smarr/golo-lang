@@ -16,18 +16,23 @@
 
 package fr.insalyon.citi.golo.compiler;
 
-import fr.insalyon.citi.golo.compiler.ir.GoloModule;
-import fr.insalyon.citi.golo.compiler.parser.ASTCompilationUnit;
-import fr.insalyon.citi.golo.compiler.parser.GoloOffsetParser;
-import fr.insalyon.citi.golo.compiler.parser.GoloParser;
-import fr.insalyon.citi.golo.compiler.parser.ParseException;
-
-import java.io.*;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.nio.charset.Charset;
 import java.nio.charset.UnsupportedCharsetException;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
+
+import fr.insalyon.citi.golo.compiler.ir.GoloModule;
+import fr.insalyon.citi.golo.compiler.parser.ASTCompilationUnit;
+import fr.insalyon.citi.golo.compiler.parser.GoloOffsetParser;
+import fr.insalyon.citi.golo.compiler.parser.GoloParser;
+import fr.insalyon.citi.golo.compiler.parser.ParseException;
 
 /**
  * The Golo compiler.
@@ -50,11 +55,11 @@ public class GoloCompiler {
    *
    * @param builder the exception builder to add problems into.
    */
-  public final void setExceptionBuilder(GoloCompilationException.Builder builder) {
+  public final void setExceptionBuilder(final GoloCompilationException.Builder builder) {
     exceptionBuilder = builder;
   }
 
-  private GoloCompilationException.Builder getOrCreateExceptionBuilder(String goloSourceFile) {
+  private GoloCompilationException.Builder getOrCreateExceptionBuilder(final String goloSourceFile) {
     if (exceptionBuilder == null) {
       exceptionBuilder = new GoloCompilationException.Builder(goloSourceFile);
     }
@@ -70,7 +75,7 @@ public class GoloCompiler {
    * @param sourceCodeInputStream the source code input stream.
    * @return the parser.
    */
-  public final GoloParser initParser(String goloSourceFilename, InputStream sourceCodeInputStream) throws GoloCompilationException {
+  public final GoloParser initParser(final String goloSourceFilename, final InputStream sourceCodeInputStream) throws GoloCompilationException {
     try {
       return initParser(new InputStreamReader(sourceCodeInputStream, Charset.forName("UTF-8")));
     } catch (UnsupportedCharsetException e) {
@@ -85,7 +90,7 @@ public class GoloCompiler {
    * @param sourceReader the source code reader.
    * @return the parser.
    */
-  public final GoloParser initParser(Reader sourceReader) {
+  public final GoloParser initParser(final Reader sourceReader) {
     if (parser == null) {
       parser = createGoloParser(sourceReader);
     } else {
@@ -102,7 +107,7 @@ public class GoloCompiler {
    * @return a list of compilation results.
    * @throws GoloCompilationException if a problem occurs during any phase of the compilation work.
    */
-  public final List<CodeGenerationResult> compile(String goloSourceFilename, InputStream sourceCodeInputStream) throws GoloCompilationException {
+  public final List<CodeGenerationResult> compile(final String goloSourceFilename, final InputStream sourceCodeInputStream) throws GoloCompilationException {
     resetExceptionBuilder();
     ASTCompilationUnit compilationUnit = parse(goloSourceFilename, initParser(goloSourceFilename, sourceCodeInputStream));
     throwIfErrorEncountered();
@@ -140,7 +145,7 @@ public class GoloCompiler {
    * @throws GoloCompilationException if a problem occurs during any phase of the compilation work.
    * @throws IOException              if writing the <code>.class</code> files fails for some reason.
    */
-  public final void compileTo(String goloSourceFilename, InputStream sourceCodeInputStream, File targetFolder) throws GoloCompilationException, IOException {
+  public final void compileTo(final String goloSourceFilename, final InputStream sourceCodeInputStream, final File targetFolder) throws GoloCompilationException, IOException {
     if (targetFolder.isFile()) {
       throw new IllegalArgumentException(targetFolder + " already exists and is a file.");
     }
@@ -165,7 +170,7 @@ public class GoloCompiler {
    * @return the resulting parse tree.
    * @throws GoloCompilationException if the parser encounters an error.
    */
-  public final ASTCompilationUnit parse(String goloSourceFilename, GoloParser parser) throws GoloCompilationException {
+  public final ASTCompilationUnit parse(final String goloSourceFilename, final GoloParser parser) throws GoloCompilationException {
     ASTCompilationUnit compilationUnit = null;
     List<ParseException> errors = new LinkedList<>();
     parser.exceptionBuilder = getOrCreateExceptionBuilder(goloSourceFilename);
@@ -185,7 +190,7 @@ public class GoloCompiler {
    * @return the intermediate representation of the source.
    * @throws GoloCompilationException if an error exists in the source represented by the input parse tree.
    */
-  public final GoloModule check(ASTCompilationUnit compilationUnit) {
+  public final GoloModule check(final ASTCompilationUnit compilationUnit) {
     ParseTreeToGoloIrVisitor parseTreeToIR = new ParseTreeToGoloIrVisitor();
     parseTreeToIR.setExceptionBuilder(exceptionBuilder);
     GoloModule goloModule = parseTreeToIR.transform(compilationUnit);
@@ -203,7 +208,7 @@ public class GoloCompiler {
    * @param sourceReader the reader.
    * @return the parser for <code>sourceReader</code>.
    */
-  protected GoloParser createGoloParser(Reader sourceReader) {
+  protected GoloParser createGoloParser(final Reader sourceReader) {
     return new GoloOffsetParser(sourceReader);
   }
 }

@@ -20,7 +20,7 @@ public class ConstantStatement extends ExpressionStatement {
 
   private final Object value;
 
-  public ConstantStatement(Object value) {
+  public ConstantStatement(final Object value) {
     super();
     this.value = value;
   }
@@ -30,7 +30,7 @@ public class ConstantStatement extends ExpressionStatement {
   }
 
   @Override
-  public void accept(GoloIrVisitor visitor) {
+  public void accept(final GoloIrVisitor visitor) {
     visitor.visitConstantStatement(this);
   }
 }
