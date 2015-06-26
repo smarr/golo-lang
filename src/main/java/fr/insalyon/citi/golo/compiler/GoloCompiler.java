@@ -28,11 +28,14 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
+import com.oracle.truffle.api.Truffle;
+
 import fr.insalyon.citi.golo.compiler.ir.GoloModule;
 import fr.insalyon.citi.golo.compiler.parser.ASTCompilationUnit;
 import fr.insalyon.citi.golo.compiler.parser.GoloOffsetParser;
 import fr.insalyon.citi.golo.compiler.parser.GoloParser;
 import fr.insalyon.citi.golo.compiler.parser.ParseException;
+import gololang.truffle.Function;
 
 /**
  * The Golo compiler.
@@ -99,6 +102,8 @@ public class GoloCompiler {
     return parser;
   }
 
+  private static final boolean thisIsALazyHackToGetADebuggableTruffleRun = true;
+
   /**
    * Compiles a Golo source file from an input stream, and returns a collection of results.
    *
@@ -113,8 +118,23 @@ public class GoloCompiler {
     throwIfErrorEncountered();
     GoloModule goloModule = check(compilationUnit);
     throwIfErrorEncountered();
+
+    if (thisIsALazyHackToGetADebuggableTruffleRun) {
+      generateAndRunTruffleASTs(goloModule);
+    }
+
     JavaBytecodeGenerationGoloIrVisitor bytecodeGenerator = new JavaBytecodeGenerationGoloIrVisitor();
     return bytecodeGenerator.generateBytecode(goloModule, goloSourceFilename);
+  }
+
+  private void generateAndRunTruffleASTs(final GoloModule goloModule) {
+    TruffleGenerationGoloIrVisitor truffleGenerator = new TruffleGenerationGoloIrVisitor();
+    truffleGenerator.generateRepresentation(goloModule); // This should probably return something usable.
+    for (Function fun : goloModule.getTruffleFunctions()){
+      if (fun.getFunction().isMain()) {
+        Truffle.getRuntime().createCallTarget(fun).call(new Object[] {new String[0]});
+      }
+    }
   }
 
   private void throwIfErrorEncountered() {
