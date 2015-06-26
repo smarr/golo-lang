@@ -16,9 +16,15 @@
 
 package fr.insalyon.citi.golo.compiler.ir;
 
+import com.oracle.truffle.api.nodes.Node;
+
+import fr.insalyon.citi.golo.compiler.TruffleGenerationGoloIrVisitor;
+
 public abstract class GoloStatement extends GoloElement {
 
   public GoloStatement() { }
 
   public abstract void accept(GoloIrVisitor visitor);
+
+  public abstract Node accept(TruffleGenerationGoloIrVisitor visitor);
 }

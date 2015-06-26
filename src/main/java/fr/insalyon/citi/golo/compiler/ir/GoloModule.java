@@ -27,6 +27,7 @@ import java.util.Map;
 import java.util.Set;
 
 import fr.insalyon.citi.golo.compiler.PackageAndClass;
+import fr.insalyon.citi.golo.compiler.TruffleGenerationGoloIrVisitor;
 import fr.insalyon.citi.golo.compiler.utils.AbstractRegister;
 import fr.insalyon.citi.golo.compiler.utils.Register;
 
@@ -176,7 +177,11 @@ public final class GoloModule extends GoloElement {
     visitor.visitModule(this);
   }
 
-  private void internTypesAugmentations(final Set<String> structNames, final Register<String,?> augmentations) {
+  public void accept(final TruffleGenerationGoloIrVisitor visitor) {
+    visitor.visitModule(this);
+  }
+
+  private void internTypesAugmentations(final Set<String> structNames, final Register<String, ?> augmentations) {
     HashSet<String> trash = new HashSet<>();
     for (String augmentation : augmentations.keySet()) {
       if (structNames.contains(augmentation)) {

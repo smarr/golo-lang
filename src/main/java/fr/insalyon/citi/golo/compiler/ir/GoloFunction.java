@@ -17,6 +17,9 @@
 package fr.insalyon.citi.golo.compiler.ir;
 
 import static java.util.Collections.unmodifiableList;
+import fr.insalyon.citi.golo.compiler.TruffleGenerationGoloIrVisitor;
+import gololang.truffle.Function;
+
 import java.util.LinkedList;
 import java.util.List;
 
@@ -166,5 +169,10 @@ public final class GoloFunction extends ExpressionStatement {
   @Override
   public void accept(final GoloIrVisitor visitor) {
     visitor.visitFunction(this);
+  }
+
+  @Override
+  public Function accept(final TruffleGenerationGoloIrVisitor visitor) {
+    return visitor.visitFunction(this);
   }
 }

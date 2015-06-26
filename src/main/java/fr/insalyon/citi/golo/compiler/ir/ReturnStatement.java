@@ -16,6 +16,9 @@
 
 package fr.insalyon.citi.golo.compiler.ir;
 
+import fr.insalyon.citi.golo.compiler.TruffleGenerationGoloIrVisitor;
+import gololang.truffle.ExpressionNode;
+
 public class ReturnStatement extends GoloStatement {
 
   private final GoloStatement expressionStatement;
@@ -42,5 +45,10 @@ public class ReturnStatement extends GoloStatement {
   @Override
   public void accept(final GoloIrVisitor visitor) {
     visitor.visitReturnStatement(this);
+  }
+
+  @Override
+  public ExpressionNode accept(final TruffleGenerationGoloIrVisitor visitor) {
+    return visitor.visitReturnStatement(this);
   }
 }
