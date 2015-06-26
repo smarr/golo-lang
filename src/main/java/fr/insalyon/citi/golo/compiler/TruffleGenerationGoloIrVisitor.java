@@ -96,7 +96,16 @@ import fr.insalyon.citi.golo.compiler.ir.TryCatchFinally;
 import fr.insalyon.citi.golo.compiler.ir.UnaryOperation;
 import fr.insalyon.citi.golo.compiler.parser.GoloParser;
 import fr.insalyon.citi.golo.runtime.OperatorType;
+import gololang.FunctionReference;
+import gololang.truffle.EvalArgumentsNode;
+import gololang.truffle.ExpressionNode;
+import gololang.truffle.Function;
+import gololang.truffle.FunctionInvocationNodeGen;
+import gololang.truffle.NotYetImplemented;
 import gololang.truffle.OrNode;
+import gololang.truffle.ReturnNode;
+import gololang.truffle.SequenceNode;
+import gololang.truffle.ThrowNode;
 import gololang.truffle.ThrowNodeGen;
 import gololang.truffle.literals.LiteralNode;
 import gololang.truffle.literals.LiteralNode.CharacterLiteralNode;
@@ -109,11 +118,12 @@ import gololang.truffle.literals.LiteralNode.NullLiteralNode;
 import gololang.truffle.literals.LiteralNode.StringLiteralNode;
 import gololang.truffle.literals.LiteralNode.TrueLiteralNode;
 
-class TruffleGenerationGoloIrVisitor implements GoloIrVisitor {
+public class TruffleGenerationGoloIrVisitor {
 
   private MethodVisitor methodVisitor;
   private List<?> notSureYetPerhaps_callTargets;
   private Context context;
+  private GoloModule module;
 
   private static class Context {
     private final Deque<ReferenceTable> referenceTableStack = new LinkedList<>();
@@ -122,7 +132,7 @@ class TruffleGenerationGoloIrVisitor implements GoloIrVisitor {
   }
 
   public void generateRepresentation(final GoloModule module) {
-
+    this.module  = module;
     this.notSureYetPerhaps_callTargets = new LinkedList<>();
     this.context = new Context();
 
@@ -132,38 +142,41 @@ class TruffleGenerationGoloIrVisitor implements GoloIrVisitor {
 //    return this.generationResults;
   }
 
-  @Override
-  public void visitModule(GoloModule module) {
-    classWriter.visit(V1_8, ACC_PUBLIC | ACC_SUPER, module.getPackageAndClass().toJVMType(), null, JOBJECT, null);
-    classWriter.visitSource(sourceFilename, null);
-    writeImportMetaData(module.getImports());
-    klass = module.getPackageAndClass().toString();
-    jvmKlass = module.getPackageAndClass().toJVMType();
+  public void visitModule(final GoloModule module) {
+// TODO: we might need to load those imports here
+//    for (ModuleImport imp : module.getImports()) {
+//      load -> imp.getPackageAndClass().toString();
+//    }
     for (GoloFunction function : module.getFunctions()) {
-      function.accept(this);
+      module.addFunction(function.accept(this));
     }
-    generateAugmentationsBytecode(module, module.getAugmentations());
-    generateAugmentationsBytecode(module, module.getNamedAugmentations());
-    if (module.getStructs().size() > 0) {
-      JavaBytecodeStructGenerator structGenerator = new JavaBytecodeStructGenerator();
-      for (Struct struct : module.getStructs()) {
-        generationResults.add(structGenerator.compile(struct, sourceFilename));
-      }
-    }
-    if (!module.getUnions().isEmpty()) {
-      JavaBytecodeUnionGenerator unionGenerator = new JavaBytecodeUnionGenerator();
-      for (Union e : module.getUnions()) {
-        generationResults.addAll(unionGenerator.compile(e, sourceFilename));
-      }
-    }
-    for (LocalReference moduleState : module.getModuleState()) {
-      writeModuleState(moduleState);
-    }
-    writeAugmentsMetaData(module.getAugmentations().keySet());
-    writeAugmentationApplicationsMetaData(module.getAugmentationApplications());
+
+
+//    klass = module.getPackageAndClass().toString();
+//    jvmKlass = module.getPackageAndClass().toJVMType();
+//
+//    generateAugmentationsBytecode(module, module.getAugmentations());
+//    generateAugmentationsBytecode(module, module.getNamedAugmentations());
+//    if (module.getStructs().size() > 0) {
+//      JavaBytecodeStructGenerator structGenerator = new JavaBytecodeStructGenerator();
+//      for (Struct struct : module.getStructs()) {
+//        generationResults.add(structGenerator.compile(struct, sourceFilename));
+//      }
+//    }
+//    if (!module.getUnions().isEmpty()) {
+//      JavaBytecodeUnionGenerator unionGenerator = new JavaBytecodeUnionGenerator();
+//      for (Union e : module.getUnions()) {
+//        generationResults.addAll(unionGenerator.compile(e, sourceFilename));
+//      }
+//    }
+//    for (LocalReference moduleState : module.getModuleState()) {
+//      writeModuleState(moduleState);
+//    }
+//    writeAugmentsMetaData(module.getAugmentations().keySet());
+//    writeAugmentationApplicationsMetaData(module.getAugmentationApplications());
   }
 
-  private void writeModuleState(LocalReference moduleState) {
+  private void writeModuleState(final LocalReference moduleState) {
     String name = moduleState.getName();
     classWriter.visitField(ACC_PRIVATE | ACC_STATIC, name, "Ljava/lang/Object;", null, null).visitEnd();
 
@@ -238,22 +251,8 @@ class TruffleGenerationGoloIrVisitor implements GoloIrVisitor {
     methodVisitor.visitEnd();
   }
 
-  private void writeImportMetaData(Set<ModuleImport> imports) {
-    String[] importsArray = new String[imports.size()];
-    int i = 0;
-    for (ModuleImport imp : imports) {
-      importsArray[i] = imp.getPackageAndClass().toString();
-      i++;
-    }
-  }
 
-  private void generateAugmentationsBytecode(GoloModule module, Map<String, Set<GoloFunction>> augmentations) {
-    for (Map.Entry<String, Set<GoloFunction>> entry : augmentations.entrySet()) {
-      generateAugmentationBytecode(module, entry.getKey(), entry.getValue());
-    }
-  }
-
-  private void generateAugmentationBytecode(GoloModule module, String target, Set<GoloFunction> functions) {
+  private void generateAugmentationBytecode(final GoloModule module, final String target, final Set<GoloFunction> functions) {
     ClassWriter mainClassWriter = classWriter;
     String mangledClass = target.replace('.', '$');
     PackageAndClass packageAndClass = new PackageAndClass(
@@ -286,88 +285,84 @@ class TruffleGenerationGoloIrVisitor implements GoloIrVisitor {
     classWriter = mainClassWriter;
   }
 
-  @Override
-  public void visitFunction(GoloFunction function) {
-    int accessFlags = (function.getVisibility() == PUBLIC) ? ACC_PUBLIC : ACC_PRIVATE;
-    String signature;
-    if (function.isMain()) {
-      signature = "([Ljava/lang/String;)V";
-    } else if (function.isVarargs()) {
-      accessFlags = accessFlags | ACC_VARARGS;
-      signature = goloVarargsFunctionSignature(function.getArity());
-    } else if (function.isModuleInit()) {
-      signature = "()V";
-    } else {
-      signature = goloFunctionSignature(function.getArity());
-    }
-    if (function.isSynthetic() || function.isDecorator()) {
-      accessFlags = accessFlags | ACC_SYNTHETIC;
-    }
-    methodVisitor = classWriter.visitMethod(
-        accessFlags | ACC_STATIC,
-        function.getName(),
-        signature,
-        null, null);
+  public Function visitFunction(final GoloFunction function) {
+    // TODO: we should assemble a runtime representation here
+//    int accessFlags = (function.getVisibility() == PUBLIC) ? ACC_PUBLIC : ACC_PRIVATE;
+//    String signature;
+//    if (function.isMain()) {
+//      signature = "([Ljava/lang/String;)V";
+//    } else if (function.isVarargs()) {
+//      accessFlags = accessFlags | ACC_VARARGS;
+//      signature = goloVarargsFunctionSignature(function.getArity());
+//    } else if (function.isModuleInit()) {
+//      signature = "()V";
+//    } else {
+//      signature = goloFunctionSignature(function.getArity());
+//    }
+//    if (function.isSynthetic() || function.isDecorator()) {
+//      accessFlags = accessFlags | ACC_SYNTHETIC;
+//    }
+//    function.getName(),
+
     if (function.isDecorated()) {
-      AnnotationVisitor annotation = methodVisitor.visitAnnotation("Lgololang/annotations/DecoratedBy;", true);
-      annotation.visit("value", function.getDecoratorRef());
-      annotation.visitEnd();
+      // TODO: decorations...
+      NotYetImplemented.t();
+
+//      AnnotationVisitor annotation = methodVisitor.visitAnnotation("Lgololang/annotations/DecoratedBy;", true);
+//      annotation.visit("value", function.getDecoratorRef());
+//      annotation.visitEnd();
     }
-    for(String parameter: function.getParameterNames()) {
-      methodVisitor.visitParameter(parameter, ACC_FINAL);
-    }
-    methodVisitor.visitCode();
-    visitLine(function, methodVisitor);
-    function.getBlock().accept(this);
-    if (function.isModuleInit()) {
-      methodVisitor.visitInsn(RETURN);
-    }
-    methodVisitor.visitMaxs(0, 0);
-    methodVisitor.visitEnd();
+
+//    for(String parameter: function.getParameterNames()) {
+//      methodVisitor.visitParameter(parameter, ACC_FINAL);
+//    }
+//    methodVisitor.visitCode();
+
+    return new Function(function.getBlock().accept(this), function);
   }
 
   @Override
-  public void visitDecorator(Decorator decorator) {
+  public void visitDecorator(final Decorator decorator) {
     decorator.getExpressionStatement().accept(this);
   }
 
-  private String goloFunctionSignature(int arity) {
-    return MethodType.genericMethodType(arity).toMethodDescriptorString();
-  }
-
-  private String goloVarargsFunctionSignature(int arity) {
-    return MethodType.genericMethodType(arity - 1, true).toMethodDescriptorString();
-  }
-
-  @Override
-  public void visitBlock(Block block) {
+  public ExpressionNode visitBlock(final Block block) {
     ReferenceTable referenceTable = block.getReferenceTable();
     context.referenceTableStack.push(referenceTable);
-    Label blockStart = new Label();
-    Label blockEnd = new Label();
-    methodVisitor.visitLabel(blockStart);
-    for (GoloStatement statement : block.getStatements()) {
-      visitLine(statement, methodVisitor);
-      statement.accept(this);
+
+    List<GoloStatement> irStatements = block.getStatements();
+    List<ExpressionNode> statements = new ArrayList<ExpressionNode>(irStatements.size());
+    for (GoloStatement statement : irStatements) {
+      statements.add((ExpressionNode) statement.accept(this));
     }
-    methodVisitor.visitLabel(blockEnd);
+
     for (LocalReference localReference : referenceTable.ownedReferences()) {
       if (localReference.isModuleState()) {
         continue;
       }
-      methodVisitor.visitLocalVariable(localReference.getName(), TOBJECT, null,
-          blockStart, blockEnd, localReference.getIndex());
     }
+
     context.referenceTableStack.pop();
+
+    return createSequence(statements);
   }
 
-  private boolean isMethodCall(BinaryOperation operation) {
+  private ExpressionNode createSequence(final List<ExpressionNode> statements) {
+    if (statements.size() == 0) {
+      return new NullLiteralNode();
+    }
+    if (statements.size() == 1) {
+      return statements.get(0);
+    }
+    return new SequenceNode(statements.toArray(new ExpressionNode[statements.size()]));
+  }
+
+  private boolean isMethodCall(final BinaryOperation operation) {
     return operation.getType() == METHOD_CALL
             || operation.getType() == ELVIS_METHOD_CALL
             || operation.getType() == ANON_CALL;
   }
 
-  @Override
   public LiteralNode visitConstantStatement(final ConstantStatement constantStatement) {
     Object value = constantStatement.getValue();
     if (value == null) {
@@ -396,27 +391,29 @@ class TruffleGenerationGoloIrVisitor implements GoloIrVisitor {
     // TODO: figure out what exactly is happening here. At runtime, do we need some form of GoloClass object?
     //       or is the ParserClassRef sufficient for Truffle? Probably not, because we can't do anything with it
     if (value instanceof GoloParser.ParserClassRef) {
-      GoloParser.ParserClassRef ref = (GoloParser.ParserClassRef) value;
-      methodVisitor.visitInvokeDynamicInsn(ref.name.replaceAll("\\.", "#"), "()Ljava/lang/Class;", CLASSREF_HANDLE);
-      return;
+      NotYetImplemented.t();
+//      GoloParser.ParserClassRef ref = (GoloParser.ParserClassRef) value;
+//      methodVisitor.visitInvokeDynamicInsn(ref.name.replaceAll("\\.", "#"), "()Ljava/lang/Class;", CLASSREF_HANDLE);
+//      return;
     }
 
     // TODO: same as with ClassRef, we probably need some proper function object (which, also probably should either
     //       be, or at least contain a Truffle RootNode
     if (value instanceof GoloParser.FunctionRef) {
-      GoloParser.FunctionRef ref = (GoloParser.FunctionRef) value;
-      String module = ref.module;
-      if (module == null) {
-        module = klass;
-      }
-      methodVisitor.visitLdcInsn(ref.name);
-      methodVisitor.visitInvokeDynamicInsn(module.replaceAll("\\.", "#"), "()Ljava/lang/Class;", CLASSREF_HANDLE);
-      methodVisitor.visitInvokeDynamicInsn(
-          "gololang#Predefined#fun",
-          "(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;",
-          FUNCTION_INVOCATION_HANDLE,
-          (Object) 1); // this specific call can be banged
-      return;
+      NotYetImplemented.t();
+//      GoloParser.FunctionRef ref = (GoloParser.FunctionRef) value;
+//      String module = ref.module;
+//      if (module == null) {
+//        module = klass;
+//      }
+//      methodVisitor.visitLdcInsn(ref.name);
+//      methodVisitor.visitInvokeDynamicInsn(module.replaceAll("\\.", "#"), "()Ljava/lang/Class;", CLASSREF_HANDLE);
+//      methodVisitor.visitInvokeDynamicInsn(
+//          "gololang#Predefined#fun",
+//          "(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;",
+//          FUNCTION_INVOCATION_HANDLE,
+//          (Object) 1); // this specific call can be banged
+//      return;
     }
     if (value instanceof Double) {
       return new DoubleLiteralNode((Double) value);
@@ -427,64 +424,82 @@ class TruffleGenerationGoloIrVisitor implements GoloIrVisitor {
     throw new IllegalArgumentException("Constants of type " + value.getClass() + " cannot be handled.");
   }
 
-  @Override
-  public void visitReturnStatement(final ReturnStatement returnStatement) {
+  public ExpressionNode visitReturnStatement(final ReturnStatement returnStatement) {
     // TODO: ok, if we are at the end of a function, we don't want a return exception
     //       only and only if we are really in some nested expression, we need to throw an exception
     //       otherwise, we can always just return here the expression statement directly
-    returnStatement.getExpressionStatement().accept(this);
-    if (returnStatement.isReturningVoid()) {
-      methodVisitor.visitInsn(RETURN);
-    } else {
-      methodVisitor.visitInsn(ARETURN);
-    }
+    return new ReturnNode((ExpressionNode) returnStatement.getExpressionStatement().accept(this));
+
+    // TODO: special treatment for void
+//    if (returnStatement.isReturningVoid()) {
+//      methodVisitor.visitInsn(RETURN);
+//    } else {
+//      methodVisitor.visitInsn(ARETURN);
+//    }
 
   }
 
-  @Override
-  public void visitThrowStatement(final ThrowStatement throwStatement) {
+  public ThrowNode visitThrowStatement(final ThrowStatement throwStatement) {
     return ThrowNodeGen.create(throwStatement.getExpressionStatement().accept(this));
   }
 
-  private List<String> visitInvocationArguments(AbstractInvocation invocation) {
-    List<String> argumentNames = new ArrayList<>();
-    for (ExpressionStatement argument : invocation.getArguments()) {
+  private ExpressionNode[] visitInvocationArguments(final AbstractInvocation invocation) {
+    List<ExpressionStatement> argStatements = invocation.getArguments();
+    ExpressionNode[] argumentNodes = new ExpressionNode[argStatements.size()];
+    int i = 0;
+    for (ExpressionStatement argument : argStatements) {
       if (invocation.usesNamedArguments()) {
-        NamedArgument namedArgument = (NamedArgument) argument;
-        argumentNames.add(namedArgument.getName());
-        argument = namedArgument.getExpression();
+        NotYetImplemented.t();
+//        NamedArgument namedArgument = (NamedArgument) argument;
+//        argumentNames.add(namedArgument.getName());
+//        argument = namedArgument.getExpression();
       }
-      argument.accept(this);
+      argumentNodes[i] = (ExpressionNode) argument.accept(this);
+      i++;
     }
-    return argumentNames;
+    return argumentNodes;
   }
 
-  @Override
-  public void visitFunctionInvocation(FunctionInvocation functionInvocation) {
-    String name = functionInvocation.getName().replaceAll("\\.", "#");
-    String typeDef = goloFunctionSignature(functionInvocation.getArity());
-    Handle handle = FUNCTION_INVOCATION_HANDLE;
+  public ExpressionNode visitFunctionInvocation(final FunctionInvocation functionInvocation) {
+//    String name = functionInvocation.getName().replaceAll("\\.", "#");
+//    String typeDef = goloFunctionSignature(functionInvocation.getArity());
+//    Handle handle = FUNCTION_INVOCATION_HANDLE;
+    if (functionInvocation.isConstant()) {
+      NotYetImplemented.t(); // This is for literal annonoumous functions, I think, can probably have a separate node
+    }
+
     List<Object> bootstrapArgs = new ArrayList<>();
-    bootstrapArgs.add(functionInvocation.isConstant() ? 1 : 0);
+
     if (functionInvocation.isOnReference()) {
-      ReferenceTable table = context.referenceTableStack.peek();
-      methodVisitor.visitVarInsn(ALOAD, table.get(functionInvocation.getName()).getIndex());
+      NotYetImplemented.t();
+//      ReferenceTable table = context.referenceTableStack.peek();
+//
+//      // -->> this is probably a local variable read, will need a lot object here
+//      methodVisitor.visitVarInsn(ALOAD, table.get(functionInvocation.getName()).getIndex());
     }
     if (functionInvocation.isOnModuleState()) {
-      visitReferenceLookup(new ReferenceLookup(functionInvocation.getName()));
+      NotYetImplemented.t();
+//      visitReferenceLookup(new ReferenceLookup(functionInvocation.getName()));
     }
     if (functionInvocation.isAnonymous() || functionInvocation.isOnReference() || functionInvocation.isOnModuleState()) {
-      methodVisitor.visitTypeInsn(CHECKCAST, "gololang/FunctionReference");
-      MethodType type = genericMethodType(functionInvocation.getArity() + 1).changeParameterType(0, FunctionReference.class);
-      typeDef = type.toMethodDescriptorString();
-      handle = CLOSURE_INVOCATION_HANDLE;
+      NotYetImplemented.t();
+//      methodVisitor.visitTypeInsn(CHECKCAST, "gololang/FunctionReference");
+//      MethodType type = genericMethodType(functionInvocation.getArity() + 1).changeParameterType(0, FunctionReference.class);
+//      typeDef = type.toMethodDescriptorString();
+//      handle = CLOSURE_INVOCATION_HANDLE;
     }
-    List<String> argumentNames = visitInvocationArguments(functionInvocation);
-    bootstrapArgs.addAll(argumentNames);
-    methodVisitor.visitInvokeDynamicInsn(name, typeDef, handle, bootstrapArgs.toArray());
+    ExpressionNode[] arguments = visitInvocationArguments(functionInvocation);
+
+//    bootstrapArgs.addAll(argumentNames);
+//    methodVisitor.visitInvokeDynamicInsn(name, typeDef, handle, bootstrapArgs.toArray());
+
     for (FunctionInvocation invocation : functionInvocation.getAnonymousFunctionInvocations()) {
+      NotYetImplemented.t();
       invocation.accept(this);
     }
+
+    // Could also be a ClosureInvocationNode, see one of the NYI branches. and earlier isConstant()
+    return FunctionInvocationNodeGen.create(functionInvocation.getName(), module, new EvalArgumentsNode(arguments));
   }
 
   @Override
