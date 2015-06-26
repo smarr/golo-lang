@@ -114,7 +114,7 @@ public final class GoloModule extends GoloElement {
     return unmodifiableMap(augmentations);
   }
 
-  public Map<String, Set<GoloFunction>> getNamedAugmentations(){
+  public Map<String, Set<GoloFunction>> getNamedAugmentations() {
     return unmodifiableMap(namedAugmentations);
   }
 

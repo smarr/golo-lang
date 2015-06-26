@@ -25,7 +25,7 @@ import java.util.Map;
 
 public class TypeMatching {
 
-  private static final Map<Class, Class> PRIMITIVE_MAP = new HashMap<Class, Class>() {
+  private static final Map<Class<?>, Class<?>> PRIMITIVE_MAP = new HashMap<Class<?>, Class<?>>() {
     {
       put(byte.class, Byte.class);
       put(short.class, Short.class);
@@ -38,19 +38,19 @@ public class TypeMatching {
     }
   };
 
-  public static boolean haveEnoughArgumentsForVarargs(Object[] arguments, Constructor constructor, Class<?>[] parameterTypes) {
+  public static boolean haveEnoughArgumentsForVarargs(final Object[] arguments, final Constructor<?> constructor, final Class<?>[] parameterTypes) {
     return constructor.isVarArgs() && (arguments.length >= parameterTypes.length);
   }
 
-  public static boolean haveEnoughArgumentsForVarargs(Object[] arguments, Method method, Class<?>[] parameterTypes) {
+  public static boolean haveEnoughArgumentsForVarargs(final Object[] arguments, final Method method, final Class<?>[] parameterTypes) {
     return method.isVarArgs() && (arguments.length >= (parameterTypes.length - 1));
   }
 
-  public static boolean haveSameNumberOfArguments(Object[] arguments, Class<?>[] parameterTypes) {
+  public static boolean haveSameNumberOfArguments(final Object[] arguments, final Class<?>[] parameterTypes) {
     return parameterTypes.length == arguments.length;
   }
 
-  public static boolean canAssign(Class<?>[] types, Object[] arguments, boolean varArgs) {
+  public static boolean canAssign(final Class<?>[] types, final Object[] arguments, final boolean varArgs) {
     if (types.length == 0 || arguments.length == 0) {
       return true;
     }
@@ -72,34 +72,34 @@ public class TypeMatching {
     return valueAndTypeMatch(types[last], arguments[last]);
   }
 
-  public static boolean valueAndTypeMatch(Class<?> type, Object value) {
+  public static boolean valueAndTypeMatch(final Class<?> type, final Object value) {
     return primitiveCompatible(type, value) || (type.isInstance(value) || value == null || samAssignment(type, value) || functionalInterfaceAssignment(type, value));
   }
 
-  private static boolean functionalInterfaceAssignment(Class<?> type, Object value) {
+  private static boolean functionalInterfaceAssignment(final Class<?> type, final Object value) {
     return (value instanceof FunctionReference) && isFunctionalInterface(type);
   }
 
-  public static boolean samAssignment(Class<?> type, Object value) {
+  public static boolean samAssignment(final Class<?> type, final Object value) {
     return (value instanceof FunctionReference) && isSAM(type);
   }
 
-  public static boolean isSAM(Class<?> type) {
+  public static boolean isSAM(final Class<?> type) {
     return type.isInterface() && (type.getMethods().length == 1);
   }
 
-  public static boolean isFunctionalInterface(Class<?> type) {
+  public static boolean isFunctionalInterface(final Class<?> type) {
     return type.isAnnotationPresent(FunctionalInterface.class);
   }
 
-  public static boolean primitiveCompatible(Class<?> type, Object value) {
+  public static boolean primitiveCompatible(final Class<?> type, final Object value) {
     if (!type.isPrimitive() || value == null) {
       return false;
     }
     return PRIMITIVE_MAP.get(type) == value.getClass();
   }
 
-  public static boolean isLastArgumentAnArray(int index, Object[] args) {
+  public static boolean isLastArgumentAnArray(final int index, final Object[] args) {
     return index > 0 && args.length == index && args[index - 1] instanceof Object[];
   }
 }

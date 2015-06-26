@@ -16,22 +16,34 @@
 
 package fr.insalyon.citi.golo.runtime;
 
+import static fr.insalyon.citi.golo.runtime.DecoratorsHelper.getDecoratedMethodHandle;
+import static fr.insalyon.citi.golo.runtime.DecoratorsHelper.isMethodDecorated;
+import static fr.insalyon.citi.golo.runtime.TypeMatching.canAssign;
+import static fr.insalyon.citi.golo.runtime.TypeMatching.haveEnoughArgumentsForVarargs;
+import static fr.insalyon.citi.golo.runtime.TypeMatching.haveSameNumberOfArguments;
+import static fr.insalyon.citi.golo.runtime.TypeMatching.isFunctionalInterface;
+import static fr.insalyon.citi.golo.runtime.TypeMatching.isLastArgumentAnArray;
+import static fr.insalyon.citi.golo.runtime.TypeMatching.isSAM;
+import static java.lang.invoke.MethodHandles.permuteArguments;
+import static java.lang.invoke.MethodType.methodType;
+import static java.lang.reflect.Modifier.isPrivate;
+import static java.lang.reflect.Modifier.isStatic;
 import gololang.FunctionReference;
 
-import java.lang.invoke.*;
+import java.lang.invoke.CallSite;
+import java.lang.invoke.LambdaMetafactory;
+import java.lang.invoke.MethodHandle;
+import java.lang.invoke.MethodHandleProxies;
+import java.lang.invoke.MethodHandles;
+import java.lang.invoke.MethodHandles.Lookup;
+import java.lang.invoke.MethodType;
+import java.lang.invoke.MutableCallSite;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.util.Arrays;
 
-import static fr.insalyon.citi.golo.runtime.TypeMatching.*;
-import static fr.insalyon.citi.golo.runtime.DecoratorsHelper.*;
-import static java.lang.invoke.MethodHandles.Lookup;
-import static java.lang.invoke.MethodHandles.permuteArguments;
-import static java.lang.invoke.MethodType.methodType;
-import static java.lang.reflect.Modifier.isPrivate;
-import static java.lang.reflect.Modifier.isStatic;
 
 public final class FunctionCallSupport {
 
@@ -42,7 +54,7 @@ public final class FunctionCallSupport {
     final boolean constant;
     final String[] argumentNames;
 
-    FunctionCallSite(MethodHandles.Lookup callerLookup, String name, MethodType type, boolean constant, String... argumentNames) {
+    FunctionCallSite(final MethodHandles.Lookup callerLookup, final String name, final MethodType type, final boolean constant, final String... argumentNames) {
       super(type);
       this.callerLookup = callerLookup;
       this.name = name;
@@ -75,21 +87,21 @@ public final class FunctionCallSupport {
     }
   }
 
-  public static Object samFilter(Class<?> type, Object value) {
+  public static Object samFilter(final Class<?> type, final Object value) {
     if (value instanceof FunctionReference) {
       return MethodHandleProxies.asInterfaceInstance(type, ((FunctionReference) value).handle());
     }
     return value;
   }
 
-  public static Object functionalInterfaceFilter(Lookup caller, Class<?> type, Object value) throws Throwable {
+  public static Object functionalInterfaceFilter(final Lookup caller, final Class<?> type, final Object value) throws Throwable {
     if (value instanceof FunctionReference) {
       return asFunctionalInterface(caller, type, ((FunctionReference) value).handle());
     }
     return value;
   }
 
-  public static Object asFunctionalInterface(Lookup caller, Class<?> type, MethodHandle handle) throws Throwable {
+  public static Object asFunctionalInterface(final Lookup caller, final Class<?> type, final MethodHandle handle) throws Throwable {
     for (Method method : type.getMethods()) {
       if (!method.isDefault() && !isStatic(method.getModifiers())) {
         MethodType lambdaType = methodType(method.getReturnType(), method.getParameterTypes());
@@ -146,7 +158,7 @@ public final class FunctionCallSupport {
       throw new NoSuchMethodError(functionName + type.toMethodDescriptorString());
     }
 
-    Class[] types = null;
+    Class<?>[] types = null;
     if (result instanceof Method) {
       Method method = (Method) result;
       checkLocalFunctionCallFromSameModuleAugmentation(method, callerClass.getName());
@@ -165,7 +177,7 @@ public final class FunctionCallSupport {
         handle = reorderArguments(method, handle, argumentNames);
       }
     } else if (result instanceof Constructor) {
-      Constructor constructor = (Constructor) result;
+      Constructor<?> constructor = (Constructor<?>) result;
       types = constructor.getParameterTypes();
       if (constructor.isVarArgs() && isLastArgumentAnArray(types.length, args)) {
         handle = caller.unreflectConstructor(constructor).asFixedArity().asType(type);
@@ -195,7 +207,7 @@ public final class FunctionCallSupport {
     }
   }
 
-  public static MethodHandle reorderArguments(Method method, MethodHandle handle, String[] argumentNames) {
+  public static MethodHandle reorderArguments(final Method method, final MethodHandle handle, final String[] argumentNames) {
     if (Arrays.stream(method.getParameters()).allMatch(p -> p.isNamePresent())) {
     String[] parameterNames = Arrays.stream(method.getParameters()).map(Parameter::getName).toArray(String[]::new);
         int[] argumentsOrder = new int[parameterNames.length];
@@ -216,7 +228,7 @@ public final class FunctionCallSupport {
     return handle;
   }
 
-  public static MethodHandle insertSAMFilter(MethodHandle handle, Lookup caller, Class[] types, int startIndex) {
+  public static MethodHandle insertSAMFilter(MethodHandle handle, final Lookup caller, final Class<?>[] types, final int startIndex) {
     if (types != null) {
       for (int i = 0; i < types.length; i++) {
         if (isSAM(types[i])) {
@@ -238,7 +250,7 @@ public final class FunctionCallSupport {
     }
   }
 
-  private static Object findClassWithConstructorFromImports(Class<?> callerClass, String classname, Object[] args) {
+  private static Object findClassWithConstructorFromImports(final Class<?> callerClass, final String classname, final Object[] args) {
     String[] imports = Module.imports(callerClass);
     for (String imported : imports) {
       Object result = findClassWithConstructor(callerClass, imported + "." + classname, args);
@@ -255,7 +267,7 @@ public final class FunctionCallSupport {
     return null;
   }
 
-  private static Object findClassWithConstructor(Class<?> callerClass, String classname, Object[] args) {
+  private static Object findClassWithConstructor(final Class<?> callerClass, final String classname, final Object[] args) {
     try {
       Class<?> targetClass = Class.forName(classname, true, callerClass.getClassLoader());
       for (Constructor<?> constructor : targetClass.getConstructors()) {
@@ -271,7 +283,7 @@ public final class FunctionCallSupport {
     return null;
   }
 
-  private static Object findClassWithStaticMethodOrFieldFromImports(Class<?> callerClass, String functionName, Object[] args) {
+  private static Object findClassWithStaticMethodOrFieldFromImports(final Class<?> callerClass, final String functionName, final Object[] args) {
     String[] imports = Module.imports(callerClass);
     String[] classAndMethod = null;
     final int classAndMethodSeparator = functionName.lastIndexOf(".");
@@ -303,7 +315,7 @@ public final class FunctionCallSupport {
     return null;
   }
 
-  private static Object findClassWithStaticMethodOrField(Class<?> callerClass, String functionName, Object[] args) {
+  private static Object findClassWithStaticMethodOrField(final Class<?> callerClass, final String functionName, final Object[] args) {
     int methodClassSeparatorIndex = functionName.lastIndexOf(".");
     if (methodClassSeparatorIndex >= 0) {
       String className = functionName.substring(0, methodClassSeparatorIndex);

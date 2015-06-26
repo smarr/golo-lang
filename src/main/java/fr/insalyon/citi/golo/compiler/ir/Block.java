@@ -66,6 +66,7 @@ public final class Block extends ExpressionStatement {
     return hasReturn;
   }
 
+  @Override
   public void accept(final GoloIrVisitor visitor) {
     visitor.visitBlock(this);
   }

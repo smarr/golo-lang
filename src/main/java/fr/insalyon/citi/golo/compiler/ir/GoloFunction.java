@@ -163,6 +163,7 @@ public final class GoloFunction extends ExpressionStatement {
     return "<clinit>".equals(name);
   }
 
+  @Override
   public void accept(final GoloIrVisitor visitor) {
     visitor.visitFunction(this);
   }

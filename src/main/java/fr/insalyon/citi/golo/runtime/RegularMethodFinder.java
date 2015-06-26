@@ -16,17 +16,30 @@
 
 package fr.insalyon.citi.golo.runtime;
 
-import java.lang.invoke.*;
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-import java.util.*;
+import static fr.insalyon.citi.golo.runtime.DecoratorsHelper.getDecoratedMethodHandle;
+import static fr.insalyon.citi.golo.runtime.DecoratorsHelper.isMethodDecorated;
+import static fr.insalyon.citi.golo.runtime.TypeMatching.canAssign;
+import static fr.insalyon.citi.golo.runtime.TypeMatching.haveEnoughArgumentsForVarargs;
+import static fr.insalyon.citi.golo.runtime.TypeMatching.isLastArgumentAnArray;
+import static java.lang.invoke.MethodHandles.constant;
+import static java.lang.invoke.MethodHandles.filterReturnValue;
+import static java.lang.reflect.Modifier.isAbstract;
+import static java.lang.reflect.Modifier.isPrivate;
+import static java.lang.reflect.Modifier.isPublic;
+import static java.lang.reflect.Modifier.isStatic;
+import static java.lang.reflect.Modifier.methodModifiers;
+import static java.util.Arrays.copyOfRange;
 import gololang.GoloStruct;
 
-import static java.lang.invoke.MethodHandles.*;
-import static java.lang.reflect.Modifier.*;
-import static java.util.Arrays.copyOfRange;
-import static fr.insalyon.citi.golo.runtime.DecoratorsHelper.*;
-import static fr.insalyon.citi.golo.runtime.TypeMatching.*;
+import java.lang.invoke.MethodHandle;
+import java.lang.invoke.MethodHandles.Lookup;
+import java.lang.invoke.MethodType;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
 
 class RegularMethodFinder implements MethodFinder {
 
@@ -39,7 +52,7 @@ class RegularMethodFinder implements MethodFinder {
   private final int arity;
   private final String[] argumentNames;
 
-  public RegularMethodFinder(MethodInvocationSupport.InlineCache inlineCache, Class<?> receiverClass, Object[] args) {
+  public RegularMethodFinder(final MethodInvocationSupport.InlineCache inlineCache, final Class<?> receiverClass, final Object[] args) {
     this.args = args;
     this.type = inlineCache.type();
     this.receiverClass = receiverClass;
@@ -68,7 +81,7 @@ class RegularMethodFinder implements MethodFinder {
     }
   }
 
-  private MethodHandle toMethodHandle(Field field) throws IllegalAccessException {
+  private MethodHandle toMethodHandle(final Field field) throws IllegalAccessException {
     MethodHandle target = null;
     if (makeAccessible) {
       field.setAccessible(true);
@@ -82,7 +95,7 @@ class RegularMethodFinder implements MethodFinder {
     return target;
   }
 
-  private MethodHandle toMethodHandle(Method method) throws IllegalAccessException {
+  private MethodHandle toMethodHandle(final Method method) throws IllegalAccessException {
     MethodHandle target = null;
     if (makeAccessible || isValidPrivateStructAccess(method)) {
       method.setAccessible(true);
@@ -102,7 +115,7 @@ class RegularMethodFinder implements MethodFinder {
     return FunctionCallSupport.insertSAMFilter(target, lookup, method.getParameterTypes(), 1);
   }
 
-  private boolean isValidPrivateStructAccess(Method method) {
+  private boolean isValidPrivateStructAccess(final Method method) {
     Object receiver = args[0];
     if (!(receiver instanceof GoloStruct)) {
       return false;
@@ -115,7 +128,7 @@ class RegularMethodFinder implements MethodFinder {
             callerClassName.equals(reverseStructAugmentation(receiverClassName)));
   }
 
-  private static String reverseStructAugmentation(String receiverClassName) {
+  private static String reverseStructAugmentation(final String receiverClassName) {
     return receiverClassName.substring(0, receiverClassName.indexOf(".types")) + "$" + receiverClassName.replace('.', '$');
   }
 
@@ -145,7 +158,7 @@ class RegularMethodFinder implements MethodFinder {
       }
       Class<?>[] parameterTypes = method.getParameterTypes();
       Object[] argsWithoutReceiver = copyOfRange(args, 1, args.length);
-      if (haveSameNumberOfArguments(argsWithoutReceiver, parameterTypes) || haveEnoughArgumentsForVarargs(argsWithoutReceiver, method, parameterTypes)) {
+      if (argsWithoutReceiver.length == parameterTypes.length || haveEnoughArgumentsForVarargs(argsWithoutReceiver, method, parameterTypes)) {
         if (canAssign(parameterTypes, argsWithoutReceiver, method.isVarArgs())) {
           return toMethodHandle(method);
         }
@@ -170,11 +183,11 @@ class RegularMethodFinder implements MethodFinder {
     return null;
   }
 
-  private boolean isMatchingField(Field field) {
+  private boolean isMatchingField(final Field field) {
     return field.getName().equals(methodName) && !isStatic(field.getModifiers());
   }
 
-  private boolean isCandidateMethod(Method method) {
+  private boolean isCandidateMethod(final Method method) {
     return method.getName().equals(methodName) && isPublic(method.getModifiers()) && !isAbstract(method.getModifiers());
   }
 }

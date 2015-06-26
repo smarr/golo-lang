@@ -18,8 +18,7 @@ package fr.insalyon.citi.golo.compiler.ir;
 
 public abstract class GoloStatement extends GoloElement {
 
-  public GoloStatement() {
-  }
+  public GoloStatement() { }
 
   public abstract void accept(GoloIrVisitor visitor);
 }

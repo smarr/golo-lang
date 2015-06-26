@@ -21,7 +21,7 @@ public class ReturnStatement extends GoloStatement {
   private final GoloStatement expressionStatement;
   private boolean returningVoid;
 
-  public ReturnStatement(ExpressionStatement expressionStatement) {
+  public ReturnStatement(final ExpressionStatement expressionStatement) {
     super();
     this.expressionStatement = expressionStatement;
     this.returningVoid = false;
@@ -40,7 +40,7 @@ public class ReturnStatement extends GoloStatement {
   }
 
   @Override
-  public void accept(GoloIrVisitor visitor) {
+  public void accept(final GoloIrVisitor visitor) {
     visitor.visitReturnStatement(this);
   }
 }
