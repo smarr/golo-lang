@@ -118,22 +118,22 @@ public final class FunctionCallSupport {
     throw new RuntimeException("Could not convert " + handle + " to a functional interface of type " + type);
   }
 
-  public static CallSite bootstrap(Lookup caller, String name, MethodType type, Object... bsmArgs) throws IllegalAccessException, ClassNotFoundException {
-    boolean constant = ((int)bsmArgs[0]) == 1;
+  public static CallSite bootstrap(final Lookup caller, final String name, final MethodType type, final Object... bsmArgs) throws IllegalAccessException, ClassNotFoundException {
+    boolean constant = ((int) bsmArgs[0]) == 1;
     String[] argumentNames = new String[bsmArgs.length - 1];
-    for (int i = 0; i < bsmArgs.length -1; i++) {
-      argumentNames[i] = (String) bsmArgs[i+1];
+    for (int i = 0; i < bsmArgs.length - 1; i++) {
+      argumentNames[i] = (String) bsmArgs[i + 1];
     }
     FunctionCallSite callSite = new FunctionCallSite(caller, name.replaceAll("#", "\\."), type, constant, argumentNames);
-    MethodHandle fallbackHandle = FALLBACK
-        .bindTo(callSite)
-        .asCollector(Object[].class, type.parameterCount())
-        .asType(type);
+    MethodHandle fallbackHandle = FALLBACK.
+        bindTo(callSite).
+        asCollector(Object[].class, type.parameterCount()).
+        asType(type);
     callSite.setTarget(fallbackHandle);
     return callSite;
   }
 
-  public static Object fallback(FunctionCallSite callSite, Object[] args) throws Throwable {
+  public static Object fallback(final FunctionCallSite callSite, final Object[] args) throws Throwable {
     String functionName = callSite.name;
     MethodType type = callSite.type();
     Lookup caller = callSite.callerLookup;
