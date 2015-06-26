@@ -140,8 +140,32 @@ public final class FunctionCallSupport {
     Class<?> callerClass = caller.lookupClass();
     String[] argumentNames = callSite.argumentNames;
 
+    MethodHandle handle = lookup(callSite, args, functionName, type, caller,
+        callerClass, argumentNames);
+
+    if (callSite.constant) {
+      Object constantValue = handle.invokeWithArguments(args);
+      MethodHandle constant;
+      if (constantValue == null) {
+        constant = MethodHandles.constant(Object.class, constantValue);
+      } else {
+        constant = MethodHandles.constant(constantValue.getClass(), constantValue);
+      }
+      constant = MethodHandles.dropArguments(constant, 0, type.parameterArray());
+      callSite.setTarget(constant.asType(type));
+      return constantValue;
+    } else {
+      callSite.setTarget(handle);
+      return handle.invokeWithArguments(args);
+    }
+  }
+
+  public static MethodHandle lookup(final FunctionCallSite callSite, final Object[] args,
+      final String functionName, final MethodType type, final Lookup caller,
+      final Class<?> callerClass, final String[] argumentNames) throws NoSuchMethodError,
+      IllegalAccessException {
     MethodHandle handle = null;
-    Object result = findStaticMethodOrField(callerClass, functionName, args);
+    Object result = null; // TODO: needs to be done on Golo level, is not need from java code. findStaticMethodOrField(callerClass, functionName, args);
     if (result == null) {
       result = findClassWithStaticMethodOrField(callerClass, functionName, args);
     }
@@ -189,22 +213,7 @@ public final class FunctionCallSupport {
       handle = caller.unreflectGetter(field).asType(type);
     }
     handle = insertSAMFilter(handle, callSite.callerLookup, types, 0);
-
-    if (callSite.constant) {
-      Object constantValue = handle.invokeWithArguments(args);
-      MethodHandle constant;
-      if (constantValue == null) {
-        constant = MethodHandles.constant(Object.class, constantValue);
-      } else {
-        constant = MethodHandles.constant(constantValue.getClass(), constantValue);
-      }
-      constant = MethodHandles.dropArguments(constant, 0, type.parameterArray());
-      callSite.setTarget(constant.asType(type));
-      return constantValue;
-    } else {
-      callSite.setTarget(handle);
-      return handle.invokeWithArguments(args);
-    }
+    return handle;
   }
 
   public static MethodHandle reorderArguments(final Method method, final MethodHandle handle, final String[] argumentNames) {
