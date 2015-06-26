@@ -30,6 +30,7 @@ import fr.insalyon.citi.golo.compiler.PackageAndClass;
 import fr.insalyon.citi.golo.compiler.TruffleGenerationGoloIrVisitor;
 import fr.insalyon.citi.golo.compiler.utils.AbstractRegister;
 import fr.insalyon.citi.golo.compiler.utils.Register;
+import gololang.truffle.Function;
 
 
 class FunctionRegister extends AbstractRegister<String, GoloFunction> {
@@ -64,6 +65,7 @@ public final class GoloModule extends GoloElement {
   private final PackageAndClass packageAndClass;
   private final Set<ModuleImport> imports = new LinkedHashSet<>();
   private final Set<GoloFunction> functions = new LinkedHashSet<>();
+  private final Set<Function> truffleFunctions = new LinkedHashSet<>();
   private final FunctionRegister augmentations = new FunctionRegister();
   private final ApplicationRegister augmentationApplications = new ApplicationRegister();
   private final FunctionRegister namedAugmentations = new FunctionRegister();
@@ -208,5 +210,13 @@ public final class GoloModule extends GoloElement {
     internTypesAugmentations(typesNames, augmentations);
     internTypesAugmentations(typesNames, augmentationApplications);
     typesNames.clear();
+  }
+
+  public void addFunction(final Function function) {
+    truffleFunctions.add(function);
+  }
+
+  public Set<Function> getTruffleFunctions() {
+    return truffleFunctions;
   }
 }
