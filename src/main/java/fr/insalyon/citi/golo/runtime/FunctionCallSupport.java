@@ -250,7 +250,7 @@ public final class FunctionCallSupport {
     return handle;
   }
 
-  private static void checkLocalFunctionCallFromSameModuleAugmentation(Method method, String callerClassName) {
+  public static void checkLocalFunctionCallFromSameModuleAugmentation(final Method method, final String callerClassName) {
     if (isPrivate(method.getModifiers()) && callerClassName.contains("$")) {
       String prefix = callerClassName.substring(0, callerClassName.indexOf("$"));
       if (method.getDeclaringClass().getName().equals(prefix)) {
@@ -338,7 +338,7 @@ public final class FunctionCallSupport {
     return null;
   }
 
-  private static Object findStaticMethodOrField(Class<?> klass, String name, Object[] arguments) {
+  public static Object findStaticMethodOrField(final Class<?> klass, final String name, final Object[] arguments) {
     for (Method method : klass.getDeclaredMethods()) {
       if (methodMatches(name, arguments, method)) {
         return method;
@@ -364,7 +364,7 @@ public final class FunctionCallSupport {
     return null;
   }
 
-  private static boolean methodMatches(String name, Object[] arguments, Method method) {
+  public static boolean methodMatches(final String name, final Object[] arguments, final Method method) {
     if (method.getName().equals(name) && isStatic(method.getModifiers())) {
       if (isMethodDecorated(method)) {
        return true;
@@ -380,7 +380,7 @@ public final class FunctionCallSupport {
     return false;
   }
 
-  private static boolean fieldMatches(String name, Field field) {
+  public static boolean fieldMatches(final String name, final Field field) {
     return field.getName().equals(name) && isStatic(field.getModifiers());
   }
 }
