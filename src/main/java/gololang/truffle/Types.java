@@ -14,6 +14,7 @@ import fr.insalyon.citi.golo.compiler.parser.GoloParser;
   String.class,
   GoloParser.ParserClassRef.class,
   GoloParser.FunctionRef.class,
-  Throwable.class
+  Throwable.class,
+  Object[].class
 })
 public class Types { }
