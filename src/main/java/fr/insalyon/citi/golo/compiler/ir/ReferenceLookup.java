@@ -20,7 +20,7 @@ public class ReferenceLookup extends ExpressionStatement {
 
   private final String name;
 
-  public ReferenceLookup(String name) {
+  public ReferenceLookup(final String name) {
     super();
     this.name = name;
   }
@@ -29,12 +29,12 @@ public class ReferenceLookup extends ExpressionStatement {
     return name;
   }
 
-  public LocalReference resolveIn(ReferenceTable referenceTable) {
+  public LocalReference resolveIn(final ReferenceTable referenceTable) {
     return referenceTable.get(name);
   }
 
   @Override
-  public void accept(GoloIrVisitor visitor) {
+  public void accept(final GoloIrVisitor visitor) {
     visitor.visitReferenceLookup(this);
   }
 }

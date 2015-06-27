@@ -24,7 +24,7 @@ public class BinaryOperation extends ExpressionStatement {
   private final ExpressionStatement leftExpression;
   private final ExpressionStatement rightExpression;
 
-  public BinaryOperation(OperatorType type, ExpressionStatement leftExpression, ExpressionStatement rightExpression) {
+  public BinaryOperation(final OperatorType type, final ExpressionStatement leftExpression, final ExpressionStatement rightExpression) {
     super();
     this.type = type;
     this.leftExpression = leftExpression;
@@ -44,7 +44,7 @@ public class BinaryOperation extends ExpressionStatement {
   }
 
   @Override
-  public void accept(GoloIrVisitor visitor) {
+  public void accept(final GoloIrVisitor visitor) {
     visitor.visitBinaryOperation(this);
   }
 }

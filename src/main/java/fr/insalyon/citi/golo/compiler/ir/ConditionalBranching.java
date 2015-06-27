@@ -23,7 +23,7 @@ public final class ConditionalBranching extends GoloStatement {
   private final ConditionalBranching elseConditionalBranching;
   private final Block falseBlock;
 
-  public ConditionalBranching(ExpressionStatement condition, Block trueBlock, Block falseBlock) {
+  public ConditionalBranching(final ExpressionStatement condition, final Block trueBlock, final Block falseBlock) {
     super();
     this.condition = condition;
     this.trueBlock = trueBlock;
@@ -31,7 +31,7 @@ public final class ConditionalBranching extends GoloStatement {
     this.elseConditionalBranching = null;
   }
 
-  public ConditionalBranching(ExpressionStatement condition, Block trueBlock, ConditionalBranching elseConditionalBranching) {
+  public ConditionalBranching(final ExpressionStatement condition, final Block trueBlock, final ConditionalBranching elseConditionalBranching) {
     super();
     this.condition = condition;
     this.trueBlock = trueBlock;
@@ -74,7 +74,7 @@ public final class ConditionalBranching extends GoloStatement {
   }
 
   @Override
-  public void accept(GoloIrVisitor visitor) {
+  public void accept(final GoloIrVisitor visitor) {
     visitor.visitConditionalBranching(this);
   }
 }

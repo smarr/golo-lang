@@ -22,7 +22,7 @@ public class AssignmentStatement extends GoloStatement {
   private final ExpressionStatement expressionStatement;
   private boolean declaring = false;
 
-  public AssignmentStatement(LocalReference localReference, ExpressionStatement expressionStatement) {
+  public AssignmentStatement(final LocalReference localReference, final ExpressionStatement expressionStatement) {
     super();
     this.localReference = localReference;
     this.expressionStatement = expressionStatement;
@@ -32,7 +32,7 @@ public class AssignmentStatement extends GoloStatement {
     return declaring;
   }
 
-  public void setDeclaring(boolean declaring) {
+  public void setDeclaring(final boolean declaring) {
     this.declaring = declaring;
   }
 
@@ -40,7 +40,7 @@ public class AssignmentStatement extends GoloStatement {
     return localReference;
   }
 
-  public void setLocalReference(LocalReference localReference) {
+  public void setLocalReference(final LocalReference localReference) {
     this.localReference = localReference;
   }
 
@@ -49,7 +49,7 @@ public class AssignmentStatement extends GoloStatement {
   }
 
   @Override
-  public void accept(GoloIrVisitor visitor) {
+  public void accept(final GoloIrVisitor visitor) {
     visitor.visitAssignmentStatement(this);
   }
 }

@@ -23,7 +23,7 @@ public class LoopStatement extends GoloStatement {
   private final GoloStatement postStatement;
   private final Block block;
 
-  public LoopStatement(AssignmentStatement initStatement, ExpressionStatement conditionStatement, Block block, GoloStatement postStatement) {
+  public LoopStatement(final AssignmentStatement initStatement, final ExpressionStatement conditionStatement, final Block block, final GoloStatement postStatement) {
     super();
     this.initStatement = initStatement;
     this.conditionStatement = conditionStatement;
@@ -56,7 +56,7 @@ public class LoopStatement extends GoloStatement {
   }
 
   @Override
-  public void accept(GoloIrVisitor visitor) {
+  public void accept(final GoloIrVisitor visitor) {
     visitor.visitLoopStatement(this);
   }
 }

@@ -16,10 +16,14 @@
 
 package fr.insalyon.citi.golo.compiler.ir;
 
-import java.util.*;
-
 import static java.util.Collections.unmodifiableCollection;
 import static java.util.Collections.unmodifiableSet;
+
+import java.util.Collection;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
+import java.util.Map;
+import java.util.Set;
 
 public final class ReferenceTable {
 
@@ -30,20 +34,20 @@ public final class ReferenceTable {
     this(null);
   }
 
-  private ReferenceTable(ReferenceTable parent) {
+  private ReferenceTable(final ReferenceTable parent) {
     this.parent = parent;
   }
 
-  public ReferenceTable add(LocalReference reference) {
+  public ReferenceTable add(final LocalReference reference) {
     table.put(reference.getName(), reference);
     return this;
   }
 
-  public boolean hasReferenceFor(String name) {
+  public boolean hasReferenceFor(final String name) {
     return table.containsKey(name) || (parent != null && parent.hasReferenceFor(name));
   }
 
-  public LocalReference get(String name) {
+  public LocalReference get(final String name) {
     LocalReference reference = table.get(name);
     if (reference != null) {
       return reference;
@@ -62,7 +66,7 @@ public final class ReferenceTable {
     return unmodifiableCollection(table.values());
   }
 
-  public void relink(ReferenceTable parent) {
+  public void relink(final ReferenceTable parent) {
     this.parent = parent;
   }
 
@@ -90,7 +94,7 @@ public final class ReferenceTable {
     return new ReferenceTable(this);
   }
 
-  public ReferenceTable flatDeepCopy(boolean turnIntoConstants) {
+  public ReferenceTable flatDeepCopy(final boolean turnIntoConstants) {
     ReferenceTable referenceTable = new ReferenceTable();
     Set<String> tableSymbols = ownedSymbols();
     for (LocalReference reference : references()) {
@@ -108,7 +112,7 @@ public final class ReferenceTable {
     return referenceTable;
   }
 
-  public void remove(String name) {
+  public void remove(final String name) {
     table.remove(name);
   }
 }
