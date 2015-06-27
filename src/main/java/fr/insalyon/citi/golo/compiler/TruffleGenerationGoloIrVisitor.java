@@ -62,12 +62,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import jdk.nashorn.internal.ir.BinaryNode;
-
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Type;
+
+import com.oracle.truffle.api.frame.FrameSlot;
 
 import fr.insalyon.citi.golo.compiler.ir.AbstractInvocation;
 import fr.insalyon.citi.golo.compiler.ir.AssignmentStatement;
@@ -97,10 +97,15 @@ import fr.insalyon.citi.golo.compiler.ir.UnaryOperation;
 import fr.insalyon.citi.golo.compiler.parser.GoloParser;
 import fr.insalyon.citi.golo.runtime.OperatorType;
 import gololang.FunctionReference;
+import gololang.truffle.BinaryNode;
 import gololang.truffle.EvalArgumentsNode;
 import gololang.truffle.ExpressionNode;
+import gololang.truffle.ForLoopNode;
 import gololang.truffle.Function;
 import gololang.truffle.FunctionInvocationNodeGen;
+import gololang.truffle.IfNode;
+import gololang.truffle.LocalVariableReadNode;
+import gololang.truffle.LocalVariableWriteNodeGen;
 import gololang.truffle.NotYetImplemented;
 import gololang.truffle.OrNode;
 import gololang.truffle.ReturnNode;
@@ -518,82 +523,73 @@ public class TruffleGenerationGoloIrVisitor {
     }
   }
 
-  @Override
-  public void visitAssignmentStatement(final AssignmentStatement assignmentStatement) {
-    assignmentStatement.getExpressionStatement().accept(this);
+  public ExpressionNode visitAssignmentStatement(final AssignmentStatement assignmentStatement) {
     LocalReference reference = assignmentStatement.getLocalReference();
     if (reference.isModuleState()) {
-      methodVisitor.visitInvokeDynamicInsn(
-          (klass + "." + reference.getName()).replaceAll("\\.", "#"),
-          "(Ljava/lang/Object;)V",
-          FUNCTION_INVOCATION_HANDLE,
-          (Object) 0);
+      throw new NotYetImplemented();
+//      methodVisitor.visitInvokeDynamicInsn(
+//          (klass + "." + reference.getName()).replaceAll("\\.", "#"),
+//          "(Ljava/lang/Object;)V",
+//          FUNCTION_INVOCATION_HANDLE,
+//          (Object) 0);
     } else {
-      methodVisitor.visitVarInsn(ASTORE, reference.getIndex());
+      ReferenceTable table = context.referenceTableStack.peek();
+      FrameSlot slot = table.getSlot(reference.getName());
+      return LocalVariableWriteNodeGen.create(
+          slot, (ExpressionNode) assignmentStatement.getExpressionStatement().accept(this));
     }
   }
 
-  @Override
-  public void visitReferenceLookup(final ReferenceLookup referenceLookup) {
+  public ExpressionNode visitReferenceLookup(final ReferenceLookup referenceLookup) {
     LocalReference reference = referenceLookup.resolveIn(context.referenceTableStack.peek());
     if (reference.isModuleState()) {
-      methodVisitor.visitInvokeDynamicInsn(
-          (klass + "." + referenceLookup.getName()).replaceAll("\\.", "#"),
-          "()Ljava/lang/Object;",
-          FUNCTION_INVOCATION_HANDLE,
-          (Object) 0);
+      throw new NotYetImplemented();
+//      methodVisitor.visitInvokeDynamicInsn(
+//          (klass + "." + referenceLookup.getName()).replaceAll("\\.", "#"),
+//          "()Ljava/lang/Object;",
+//          FUNCTION_INVOCATION_HANDLE,
+//          (Object) 0);
     } else {
-      methodVisitor.visitVarInsn(ALOAD, reference.getIndex());
+      ReferenceTable table = context.referenceTableStack.peek();
+      FrameSlot slot = table.getSlot(reference.getName());
+      return new LocalVariableReadNode(slot);
     }
   }
 
-  @Override
-  public void visitConditionalBranching(final ConditionalBranching conditionalBranching) {
-    Label branchingElseLabel = new Label();
-    Label branchingExitLabel = new Label();
-    conditionalBranching.getCondition().accept(this);
-    asmBooleanValue();
-    methodVisitor.visitJumpInsn(IFEQ, branchingElseLabel);
-    conditionalBranching.getTrueBlock().accept(this);
+  public ExpressionNode visitConditionalBranching(final ConditionalBranching conditionalBranching) {
+    ExpressionNode condition = (ExpressionNode) conditionalBranching.getCondition().accept(this);
+    ExpressionNode thenNode  = conditionalBranching.getTrueBlock().accept(this);
+    ExpressionNode elseNode;
+
     if (conditionalBranching.hasFalseBlock()) {
-      if (!conditionalBranching.getTrueBlock().hasReturn()) {
-        methodVisitor.visitJumpInsn(GOTO, branchingExitLabel);
-      }
-      methodVisitor.visitLabel(branchingElseLabel);
-      conditionalBranching.getFalseBlock().accept(this);
-      methodVisitor.visitLabel(branchingExitLabel);
+      elseNode = conditionalBranching.getFalseBlock().accept(this);
     } else if (conditionalBranching.hasElseConditionalBranching()) {
-      if (!conditionalBranching.getTrueBlock().hasReturn()) {
-        methodVisitor.visitJumpInsn(GOTO, branchingExitLabel);
-      }
-      methodVisitor.visitLabel(branchingElseLabel);
-      conditionalBranching.getElseConditionalBranching().accept(this);
-      methodVisitor.visitLabel(branchingExitLabel);
+      elseNode = (ExpressionNode) conditionalBranching.getElseConditionalBranching().accept(this);
     } else {
-      methodVisitor.visitLabel(branchingElseLabel);
+      elseNode = null;
     }
+    return new IfNode(condition, thenNode, elseNode);
   }
 
-  @Override
-  public void visitLoopStatement(final LoopStatement loopStatement) {
-    // TODO handle init and post statement and potential reference scoping issues
-    Label loopStart = new Label();
-    Label loopEnd = new Label();
-    context.loopStartMap.put(loopStatement, loopStart);
-    context.loopEndMap.put(loopStatement, loopEnd);
+  public ExpressionNode visitLoopStatement(final LoopStatement loopStatement) {
+    // TODO: it seems like the loops do not have their own scope. if they do, we should adapt the loop node to use a separate frame
+    ExpressionNode init;
     if (loopStatement.hasInitStatement()) {
-      loopStatement.getInitStatement().accept(this);
+      init = (ExpressionNode) loopStatement.getInitStatement().accept(this);
+    } else {
+      init = null;
     }
-    methodVisitor.visitLabel(loopStart);
-    loopStatement.getConditionStatement().accept(this);
-    asmBooleanValue();
-    methodVisitor.visitJumpInsn(IFEQ, loopEnd);
-    loopStatement.getBlock().accept(this);
+
+    ExpressionNode condition = (ExpressionNode) loopStatement.getConditionStatement().accept(this);
+    ExpressionNode body      = loopStatement.getBlock().accept(this);
+
+    ExpressionNode post;
     if (loopStatement.hasPostStatement()) {
-      loopStatement.getPostStatement().accept(this);
+      post = (ExpressionNode) loopStatement.getPostStatement().accept(this);
+    } else {
+      post = null;
     }
-    methodVisitor.visitJumpInsn(GOTO, loopStart);
-    methodVisitor.visitLabel(loopEnd);
+    return new ForLoopNode(init, condition, body, post);
   }
 
   @Override
@@ -806,24 +802,28 @@ public class TruffleGenerationGoloIrVisitor {
     }
   }
 
-  @Override
   public BinaryNode visitBinaryOperation(final BinaryOperation binaryOperation) {
     OperatorType operatorType = binaryOperation.getType();
     if (AND.equals(operatorType)) {
-      return andOperator(binaryOperation);
+      throw new NotYetImplemented();
+      // return andOperator(binaryOperation);
     } else if (OR.equals(operatorType)) {
-      return orOperator(binaryOperation);
+      throw new NotYetImplemented();
+//      return orOperator(binaryOperation);
     } else {
       return genericBinaryOperator(binaryOperation, operatorType);
     }
   }
 
-  private void genericBinaryOperator(final BinaryOperation binaryOperation, final OperatorType operatorType) {
-    binaryOperation.getLeftExpression().accept(this);
-    binaryOperation.getRightExpression().accept(this);
+  private BinaryNode genericBinaryOperator(
+      final BinaryOperation binaryOperation, final OperatorType operatorType) {
     if (!isMethodCall(binaryOperation)) {
-      String name = operatorType.name().toLowerCase();
-      methodVisitor.visitInvokeDynamicInsn(name, goloFunctionSignature(2), OPERATOR_HANDLE, (Integer) 2);
+      return operatorType.createNode(
+          (ExpressionNode) binaryOperation.getLeftExpression().accept(this),
+          (ExpressionNode) binaryOperation.getRightExpression().accept(this));
+    } else {
+      assert false;
+      throw new NotYetImplemented();
     }
   }
 
