@@ -323,7 +323,8 @@ public class TruffleGenerationGoloIrVisitor {
 //    }
 //    methodVisitor.visitCode();
 
-    return new Function(function.getBlock().accept(this), function);
+    return new Function(function.getBlock().accept(this), function,
+        function.getBlock().getReferenceTable().getFrameDescriptor());
   }
 
   @Override

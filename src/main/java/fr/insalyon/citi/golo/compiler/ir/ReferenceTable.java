@@ -43,6 +43,10 @@ public final class ReferenceTable {
     this.parent = parent;
   }
 
+  public FrameDescriptor getFrameDescriptor() {
+    return frameDescriptor;
+  }
+
   public ReferenceTable add(final LocalReference reference) {
     frameDescriptor.addFrameSlot(reference.getName(), FrameSlotKind.Object); // TODO: might want to specialize this later on
     table.put(reference.getName(), reference);

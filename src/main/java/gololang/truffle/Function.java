@@ -1,5 +1,6 @@
 package gololang.truffle;
 
+import com.oracle.truffle.api.frame.FrameDescriptor;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.RootNode;
 
@@ -10,7 +11,9 @@ public final class Function extends RootNode {
   @Child protected ExpressionNode expr;
   protected final GoloFunction   function;
 
-  public Function(final ExpressionNode expr, final GoloFunction function) {
+  public Function(final ExpressionNode expr, final GoloFunction function,
+      final FrameDescriptor frameDescriptor) {
+    super(null, frameDescriptor);
     this.expr = expr;
     this.function = function;
   }
