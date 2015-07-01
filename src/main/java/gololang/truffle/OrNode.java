@@ -4,9 +4,8 @@ import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.frame.VirtualFrame;
 
 public class OrNode {
-	
   @Specialization
-  public final boolean doOr(VirtualFrame frame, boolean left, boolean right) {
-	return left || right;
+  public final boolean doOr(final VirtualFrame frame, final boolean left, final boolean right) {
+    return left || right;
   }
 }
