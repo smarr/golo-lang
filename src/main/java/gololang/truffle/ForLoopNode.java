@@ -10,7 +10,7 @@ import com.oracle.truffle.api.nodes.RepeatingNode;
 import com.oracle.truffle.api.nodes.UnexpectedResultException;
 
 
-public class ForLoopNode extends ExpressionNode {
+public final class ForLoopNode extends ExpressionNode {
 
   @Child protected LoopNode loopNode;
   @Child protected ExpressionNode init;
@@ -19,7 +19,7 @@ public class ForLoopNode extends ExpressionNode {
       final ExpressionNode condition,
       final ExpressionNode body,
       final ExpressionNode post) {
-
+    this.init = init;
     loopNode = Truffle.getRuntime().createLoopNode(
         new RepeatNode(condition, body, post));
   }
