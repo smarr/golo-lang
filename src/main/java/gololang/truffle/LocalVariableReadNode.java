@@ -5,7 +5,7 @@ import com.oracle.truffle.api.frame.FrameSlotKind;
 import com.oracle.truffle.api.frame.VirtualFrame;
 
 
-public class LocalVariableReadNode extends ExpressionNode {
+public final class LocalVariableReadNode extends ExpressionNode {
 
   protected final FrameSlot slot;
 
