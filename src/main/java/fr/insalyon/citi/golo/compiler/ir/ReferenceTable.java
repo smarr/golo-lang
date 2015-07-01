@@ -25,15 +25,10 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
-import com.oracle.truffle.api.frame.FrameDescriptor;
-import com.oracle.truffle.api.frame.FrameSlot;
-import com.oracle.truffle.api.frame.FrameSlotKind;
-
 public final class ReferenceTable {
 
   private ReferenceTable parent;
   private final Map<String, LocalReference> table = new LinkedHashMap<>();
-  private final FrameDescriptor frameDescriptor   = new FrameDescriptor();
 
   public ReferenceTable() {
     this(null);
@@ -43,24 +38,13 @@ public final class ReferenceTable {
     this.parent = parent;
   }
 
-  public FrameDescriptor getFrameDescriptor() {
-    return frameDescriptor;
-  }
-
   public ReferenceTable add(final LocalReference reference) {
-    frameDescriptor.addFrameSlot(reference.getName(), FrameSlotKind.Object); // TODO: might want to specialize this later on
     table.put(reference.getName(), reference);
     return this;
   }
 
   public boolean hasReferenceFor(final String name) {
     return table.containsKey(name) || (parent != null && parent.hasReferenceFor(name));
-  }
-
-  public FrameSlot getSlot(final String name) {
-    FrameSlot result = frameDescriptor.findFrameSlot(name);
-    assert result != null;
-    return result;
   }
 
   public LocalReference get(final String name) {
@@ -112,6 +96,7 @@ public final class ReferenceTable {
 
   public ReferenceTable flatDeepCopy(final boolean turnIntoConstants) {
     ReferenceTable referenceTable = new ReferenceTable();
+
     Set<String> tableSymbols = ownedSymbols();
     for (LocalReference reference : references()) {
       if (reference.isModuleState()) {

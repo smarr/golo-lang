@@ -67,7 +67,9 @@ import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Type;
 
+import com.oracle.truffle.api.frame.FrameDescriptor;
 import com.oracle.truffle.api.frame.FrameSlot;
+import com.oracle.truffle.api.frame.FrameSlotKind;
 
 import fr.insalyon.citi.golo.compiler.ir.AbstractInvocation;
 import fr.insalyon.citi.golo.compiler.ir.AssignmentStatement;
@@ -132,6 +134,8 @@ public class TruffleGenerationGoloIrVisitor {
 
   private static class Context {
     private final Deque<ReferenceTable> referenceTableStack = new LinkedList<>();
+    private final Deque<FrameDescriptor> frameDescriptors   = new LinkedList<>();
+
     private final Map<LoopStatement, Label> loopStartMap = new HashMap<>();
     private final Map<LoopStatement, Label> loopEndMap = new HashMap<>();
   }
@@ -291,6 +295,10 @@ public class TruffleGenerationGoloIrVisitor {
   }
 
   public Function visitFunction(final GoloFunction function) {
+    FrameDescriptor frameDesc = new FrameDescriptor(null);
+    context.frameDescriptors.push(frameDesc);
+
+
     // TODO: we should assemble a runtime representation here
 //    int accessFlags = (function.getVisibility() == PUBLIC) ? ACC_PUBLIC : ACC_PRIVATE;
 //    String signature;
@@ -323,8 +331,9 @@ public class TruffleGenerationGoloIrVisitor {
 //    }
 //    methodVisitor.visitCode();
 
-    return new Function(function.getBlock().accept(this), function,
-        function.getBlock().getReferenceTable().getFrameDescriptor());
+    ExpressionNode body = function.getBlock().accept(this);
+    context.frameDescriptors.pop();
+    return new Function(body, function, frameDesc);
   }
 
   @Override
@@ -534,11 +543,15 @@ public class TruffleGenerationGoloIrVisitor {
 //          FUNCTION_INVOCATION_HANDLE,
 //          (Object) 0);
     } else {
-      ReferenceTable table = context.referenceTableStack.peek();
-      FrameSlot slot = table.getSlot(reference.getName());
+      FrameSlot slot = getFrameSlot(reference);
       return LocalVariableWriteNodeGen.create(
           slot, (ExpressionNode) assignmentStatement.getExpressionStatement().accept(this));
     }
+  }
+
+  private FrameSlot getFrameSlot(final LocalReference reference) {
+    FrameSlot slot = context.frameDescriptors.peek().findOrAddFrameSlot(reference.getName(), FrameSlotKind.Object); // TODO: might want to specialize this later on
+    return slot;
   }
 
   public ExpressionNode visitReferenceLookup(final ReferenceLookup referenceLookup) {
@@ -551,8 +564,7 @@ public class TruffleGenerationGoloIrVisitor {
 //          FUNCTION_INVOCATION_HANDLE,
 //          (Object) 0);
     } else {
-      ReferenceTable table = context.referenceTableStack.peek();
-      FrameSlot slot = table.getSlot(reference.getName());
+      FrameSlot slot = getFrameSlot(reference);
       return new LocalVariableReadNode(slot);
     }
   }
