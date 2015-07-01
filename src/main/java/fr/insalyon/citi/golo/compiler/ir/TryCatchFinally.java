@@ -16,6 +16,10 @@
 
 package fr.insalyon.citi.golo.compiler.ir;
 
+import com.oracle.truffle.api.nodes.Node;
+
+import fr.insalyon.citi.golo.compiler.TruffleGenerationGoloIrVisitor;
+
 public class TryCatchFinally extends GoloStatement {
 
   private final String exceptionId;
@@ -70,5 +74,10 @@ public class TryCatchFinally extends GoloStatement {
   @Override
   public void accept(final GoloIrVisitor visitor) {
     visitor.visitTryCatchFinally(this);
+  }
+
+  @Override
+  public Node accept(final TruffleGenerationGoloIrVisitor visitor) {
+    return visitor.visitTryCatchFinally(this);
   }
 }

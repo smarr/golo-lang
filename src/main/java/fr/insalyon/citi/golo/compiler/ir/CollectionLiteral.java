@@ -18,6 +18,10 @@ package fr.insalyon.citi.golo.compiler.ir;
 
 import java.util.List;
 
+import com.oracle.truffle.api.nodes.Node;
+
+import fr.insalyon.citi.golo.compiler.TruffleGenerationGoloIrVisitor;
+
 public class CollectionLiteral extends ExpressionStatement {
 
   public static enum Type {
@@ -43,5 +47,10 @@ public class CollectionLiteral extends ExpressionStatement {
   @Override
   public void accept(final GoloIrVisitor visitor) {
     visitor.visitCollectionLiteral(this);
+  }
+
+  @Override
+  public Node accept(final TruffleGenerationGoloIrVisitor visitor) {
+    return visitor.visitCollectionLiteral(this);
   }
 }

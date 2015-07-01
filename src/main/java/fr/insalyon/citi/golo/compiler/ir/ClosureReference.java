@@ -19,6 +19,10 @@ package fr.insalyon.citi.golo.compiler.ir;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
+import com.oracle.truffle.api.nodes.Node;
+
+import fr.insalyon.citi.golo.compiler.TruffleGenerationGoloIrVisitor;
+
 public class ClosureReference extends ExpressionStatement {
 
   private final GoloFunction target;
@@ -45,5 +49,10 @@ public class ClosureReference extends ExpressionStatement {
   @Override
   public void accept(final GoloIrVisitor visitor) {
     visitor.visitClosureReference(this);
+  }
+
+  @Override
+  public Node accept(final TruffleGenerationGoloIrVisitor visitor) {
+    return visitor.visitClosureReference(this);
   }
 }

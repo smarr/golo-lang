@@ -16,6 +16,10 @@
 
 package fr.insalyon.citi.golo.compiler.ir;
 
+import com.oracle.truffle.api.nodes.Node;
+
+import fr.insalyon.citi.golo.compiler.TruffleGenerationGoloIrVisitor;
+
 public class LoopBreakFlowStatement extends GoloStatement {
 
   public static enum Type {
@@ -53,5 +57,10 @@ public class LoopBreakFlowStatement extends GoloStatement {
   @Override
   public void accept(final GoloIrVisitor visitor) {
     visitor.visitLoopBreakFlowStatement(this);
+  }
+
+  @Override
+  public Node accept(final TruffleGenerationGoloIrVisitor visitor) {
+    return visitor.visitLoopBreakFlowStatement(this);
   }
 }

@@ -16,6 +16,10 @@
 
 package fr.insalyon.citi.golo.compiler.ir;
 
+import com.oracle.truffle.api.nodes.Node;
+
+import fr.insalyon.citi.golo.compiler.TruffleGenerationGoloIrVisitor;
+
 public class ThrowStatement extends GoloStatement {
 
   private final GoloStatement expressionStatement;
@@ -32,5 +36,10 @@ public class ThrowStatement extends GoloStatement {
 
   public GoloStatement getExpressionStatement() {
     return expressionStatement;
+  }
+
+  @Override
+  public Node accept(final TruffleGenerationGoloIrVisitor visitor) {
+    return visitor.visitThrowStatement(this);
   }
 }

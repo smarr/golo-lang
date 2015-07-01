@@ -16,6 +16,10 @@
 
 package fr.insalyon.citi.golo.compiler.ir;
 
+import com.oracle.truffle.api.nodes.Node;
+
+import fr.insalyon.citi.golo.compiler.TruffleGenerationGoloIrVisitor;
+
 public class MethodInvocation extends AbstractInvocation {
 
   private boolean nullSafeGuarded = false;
@@ -35,5 +39,10 @@ public class MethodInvocation extends AbstractInvocation {
   @Override
   public void accept(final GoloIrVisitor visitor) {
     visitor.visitMethodInvocation(this);
+  }
+
+  @Override
+  public Node accept(final TruffleGenerationGoloIrVisitor visitor) {
+    return visitor.visitMethodInvocation(this);
   }
 }

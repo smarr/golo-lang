@@ -16,6 +16,11 @@
 
 package fr.insalyon.citi.golo.compiler.ir;
 
+import com.oracle.truffle.api.nodes.Node;
+
+import fr.insalyon.citi.golo.compiler.TruffleGenerationGoloIrVisitor;
+import gololang.truffle.NotYetImplemented;
+
 public class NamedArgument extends ExpressionStatement {
 
   private String name;
@@ -45,5 +50,10 @@ public class NamedArgument extends ExpressionStatement {
   @Override
   public void accept(final GoloIrVisitor visitor) {
 
+  }
+
+  @Override
+  public Node accept(final TruffleGenerationGoloIrVisitor visitor) {
+    throw new NotYetImplemented();
   }
 }
