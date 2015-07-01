@@ -8,6 +8,6 @@ public abstract class ThrowNode extends UnaryNode {
   public final Object doThrow(final Throwable throwable) {
     // TODO: this is not going to fly...
     //       what do we do here? do we wrap it in a runtime exception, and unwrap it on catch?
-    throw throwable;
+    throw new RuntimeException(throwable);
   }
 }
