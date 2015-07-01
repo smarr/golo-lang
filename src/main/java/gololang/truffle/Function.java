@@ -16,6 +16,7 @@ public final class Function extends RootNode {
     super(null, frameDescriptor);
     this.expr = expr;
     this.function = function;
+    this.function.setTruffleFunction(this);
   }
 
   @Override

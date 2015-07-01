@@ -23,6 +23,8 @@ import gololang.truffle.Function;
 import java.util.LinkedList;
 import java.util.List;
 
+import com.oracle.truffle.api.CompilerDirectives.CompilationFinal;
+
 public final class GoloFunction extends ExpressionStatement {
 
   public static enum Visibility {
@@ -48,10 +50,22 @@ public final class GoloFunction extends ExpressionStatement {
   private String decoratorRef = null;
   private LinkedList<Decorator> decorators = new LinkedList<>();
 
+  @CompilationFinal
+  private Function truffleFunction;
+
   public GoloFunction(final String name, final Visibility visibility, final Scope scope) {
     this.name = name;
     this.visibility = visibility;
     this.scope = scope;
+  }
+
+  public Function getTruffleFunction() {
+    return truffleFunction;
+  }
+
+  public void setTruffleFunction(final Function fun) {
+    assert truffleFunction == null;
+    truffleFunction = fun;
   }
 
   public Scope getScope() {
