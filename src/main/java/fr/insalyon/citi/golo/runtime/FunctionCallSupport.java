@@ -165,7 +165,7 @@ public final class FunctionCallSupport {
       final Class<?> callerClass, final String[] argumentNames) throws NoSuchMethodError,
       IllegalAccessException {
     MethodHandle handle = null;
-    Object result = null; // TODO: needs to be done on Golo level, is not need from java code. findStaticMethodOrField(callerClass, functionName, args);
+    Object result = findStaticMethodOrField(callerClass, functionName, args);
     if (result == null) {
       result = findClassWithStaticMethodOrField(callerClass, functionName, args);
     }
