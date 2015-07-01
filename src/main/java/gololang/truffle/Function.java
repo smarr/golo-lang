@@ -21,7 +21,12 @@ public final class Function extends RootNode {
 
   @Override
   public Object execute(final VirtualFrame frame) {
-    return expr.executeGeneric(frame);
+    try {
+      return expr.executeGeneric(frame);
+    } catch (ReturnException ex) {
+      // TODO: try to eliminate unnecessary return exceptions at the end of expressions...
+      return ex.getResult();
+    }
   }
 
   public GoloFunction getFunction() {
