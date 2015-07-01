@@ -22,50 +22,26 @@ import static fr.insalyon.citi.golo.runtime.OperatorType.ANON_CALL;
 import static fr.insalyon.citi.golo.runtime.OperatorType.ELVIS_METHOD_CALL;
 import static fr.insalyon.citi.golo.runtime.OperatorType.METHOD_CALL;
 import static fr.insalyon.citi.golo.runtime.OperatorType.OR;
-import static java.lang.invoke.MethodType.methodType;
-import static org.objectweb.asm.ClassWriter.COMPUTE_FRAMES;
-import static org.objectweb.asm.ClassWriter.COMPUTE_MAXS;
 import static org.objectweb.asm.Opcodes.AASTORE;
-import static org.objectweb.asm.Opcodes.ACC_PRIVATE;
-import static org.objectweb.asm.Opcodes.ACC_PUBLIC;
-import static org.objectweb.asm.Opcodes.ACC_STATIC;
-import static org.objectweb.asm.Opcodes.ACC_SUPER;
-import static org.objectweb.asm.Opcodes.ACC_SYNTHETIC;
-import static org.objectweb.asm.Opcodes.ALOAD;
 import static org.objectweb.asm.Opcodes.ANEWARRAY;
-import static org.objectweb.asm.Opcodes.ARETURN;
-import static org.objectweb.asm.Opcodes.ASTORE;
-import static org.objectweb.asm.Opcodes.ATHROW;
 import static org.objectweb.asm.Opcodes.CHECKCAST;
 import static org.objectweb.asm.Opcodes.DUP;
-import static org.objectweb.asm.Opcodes.GETSTATIC;
-import static org.objectweb.asm.Opcodes.GOTO;
-import static org.objectweb.asm.Opcodes.IFEQ;
-import static org.objectweb.asm.Opcodes.ILOAD;
 import static org.objectweb.asm.Opcodes.INVOKESPECIAL;
 import static org.objectweb.asm.Opcodes.INVOKEVIRTUAL;
 import static org.objectweb.asm.Opcodes.NEW;
 import static org.objectweb.asm.Opcodes.POP;
-import static org.objectweb.asm.Opcodes.PUTSTATIC;
-import static org.objectweb.asm.Opcodes.RETURN;
 import static org.objectweb.asm.Opcodes.SWAP;
-import static org.objectweb.asm.Opcodes.V1_8;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.Deque;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
-import org.objectweb.asm.Type;
 
 import com.oracle.truffle.api.frame.FrameDescriptor;
 import com.oracle.truffle.api.frame.FrameSlot;
@@ -89,7 +65,6 @@ import fr.insalyon.citi.golo.compiler.ir.LocalReference;
 import fr.insalyon.citi.golo.compiler.ir.LoopBreakFlowStatement;
 import fr.insalyon.citi.golo.compiler.ir.LoopStatement;
 import fr.insalyon.citi.golo.compiler.ir.MethodInvocation;
-import fr.insalyon.citi.golo.compiler.ir.ModuleImport;
 import fr.insalyon.citi.golo.compiler.ir.ReferenceLookup;
 import fr.insalyon.citi.golo.compiler.ir.ReferenceTable;
 import fr.insalyon.citi.golo.compiler.ir.ReturnStatement;
@@ -98,7 +73,6 @@ import fr.insalyon.citi.golo.compiler.ir.TryCatchFinally;
 import fr.insalyon.citi.golo.compiler.ir.UnaryOperation;
 import fr.insalyon.citi.golo.compiler.parser.GoloParser;
 import fr.insalyon.citi.golo.runtime.OperatorType;
-import gololang.FunctionReference;
 import gololang.truffle.BinaryNode;
 import gololang.truffle.EvalArgumentsNode;
 import gololang.truffle.ExpressionNode;
@@ -110,7 +84,6 @@ import gololang.truffle.LocalArgumentReadNode;
 import gololang.truffle.LocalVariableReadNode;
 import gololang.truffle.LocalVariableWriteNodeGen;
 import gololang.truffle.NotYetImplemented;
-import gololang.truffle.OrNode;
 import gololang.truffle.ReturnNode;
 import gololang.truffle.SequenceNode;
 import gololang.truffle.ThrowNode;
@@ -187,112 +160,115 @@ public class TruffleGenerationGoloIrVisitor {
   }
 
   private void writeModuleState(final LocalReference moduleState) {
-    String name = moduleState.getName();
-    classWriter.visitField(ACC_PRIVATE | ACC_STATIC, name, "Ljava/lang/Object;", null, null).visitEnd();
-
-    MethodVisitor mv = classWriter.visitMethod(ACC_PRIVATE | ACC_STATIC | ACC_SYNTHETIC, name, "()Ljava/lang/Object;", null, null);
-    mv.visitCode();
-    mv.visitFieldInsn(GETSTATIC, jvmKlass, name, "Ljava/lang/Object;");
-    mv.visitInsn(ARETURN);
-    mv.visitMaxs(0, 0);
-    mv.visitEnd();
-
-    mv = classWriter.visitMethod(ACC_PRIVATE | ACC_STATIC | ACC_SYNTHETIC, name, "(Ljava/lang/Object;)V", null, null);
-    mv.visitCode();
-    mv.visitVarInsn(ALOAD, 0);
-    mv.visitFieldInsn(PUTSTATIC, jvmKlass, name, "Ljava/lang/Object;");
-    mv.visitInsn(RETURN);
-    mv.visitMaxs(0, 0);
-    mv.visitEnd();
+    NotYetImplemented.t();
+//    String name = moduleState.getName();
+//    classWriter.visitField(ACC_PRIVATE | ACC_STATIC, name, "Ljava/lang/Object;", null, null).visitEnd();
+//
+//    MethodVisitor mv = classWriter.visitMethod(ACC_PRIVATE | ACC_STATIC | ACC_SYNTHETIC, name, "()Ljava/lang/Object;", null, null);
+//    mv.visitCode();
+//    mv.visitFieldInsn(GETSTATIC, jvmKlass, name, "Ljava/lang/Object;");
+//    mv.visitInsn(ARETURN);
+//    mv.visitMaxs(0, 0);
+//    mv.visitEnd();
+//
+//    mv = classWriter.visitMethod(ACC_PRIVATE | ACC_STATIC | ACC_SYNTHETIC, name, "(Ljava/lang/Object;)V", null, null);
+//    mv.visitCode();
+//    mv.visitVarInsn(ALOAD, 0);
+//    mv.visitFieldInsn(PUTSTATIC, jvmKlass, name, "Ljava/lang/Object;");
+//    mv.visitInsn(RETURN);
+//    mv.visitMaxs(0, 0);
+//    mv.visitEnd();
   }
 
   private void writeAugmentationApplicationsMetaData(final Map<String, Set<String>> applications) {
+    NotYetImplemented.t();
     /* create a metadata method that given a target class name hashcode
      * returns a String array containing the names of applied
      * augmentations
      */
 
-    int applicationsSize = applications.size();
-    List<String> applicationNames = new ArrayList<>(applications.keySet());
-
-    Label defaultLabel = new Label();
-    Label[] labels = new Label[applicationsSize];
-    int[] keys = new int[applicationsSize];
-    String[][] namesArrays = new String[applicationsSize][];
-    // cases of the switch statement MUST be sorted
-    Collections.sort(applicationNames, new Comparator<String>(){
-      @Override
-      public int compare(final String o1, final String o2) {
-        return Integer.compare(o1.hashCode(), o2.hashCode());
-      }
-    });
-    int i = 0;
-    for (String applicationName : applicationNames) {
-      labels[i] = new Label();
-      keys[i] = applicationName.hashCode();
-      namesArrays[i] = applications.get(applicationName).toArray(new String[applications.get(applicationName).size()]);
-      i++;
-    }
-    methodVisitor = classWriter.visitMethod(
-        ACC_PUBLIC | ACC_STATIC | ACC_SYNTHETIC,
-        "$augmentationApplications",
-        "(I)[Ljava/lang/String;",
-        null, null);
-    methodVisitor.visitCode();
-    methodVisitor.visitVarInsn(ILOAD, 0);
-    methodVisitor.visitLookupSwitchInsn(defaultLabel, keys, labels);
-    for (i=0; i < applicationsSize; i++) {
-      methodVisitor.visitLabel(labels[i]);
-      loadInteger(methodVisitor, namesArrays[i].length);
-      methodVisitor.visitTypeInsn(ANEWARRAY, "java/lang/String");
-      for (int j = 0; j < namesArrays[i].length; j++) {
-        methodVisitor.visitInsn(DUP);
-        loadInteger(methodVisitor, j);
-        methodVisitor.visitLdcInsn(namesArrays[i][j]);
-        methodVisitor.visitInsn(AASTORE);
-      }
-      methodVisitor.visitInsn(ARETURN);
-    }
-    methodVisitor.visitLabel(defaultLabel);
-    loadInteger(methodVisitor, 0);
-    methodVisitor.visitTypeInsn(ANEWARRAY, "java/lang/String");
-    methodVisitor.visitInsn(ARETURN);
-    methodVisitor.visitMaxs(0, 0);
-    methodVisitor.visitEnd();
+//    int applicationsSize = applications.size();
+//    List<String> applicationNames = new ArrayList<>(applications.keySet());
+//
+//    Label defaultLabel = new Label();
+//    Label[] labels = new Label[applicationsSize];
+//    int[] keys = new int[applicationsSize];
+//    String[][] namesArrays = new String[applicationsSize][];
+//    // cases of the switch statement MUST be sorted
+//    Collections.sort(applicationNames, new Comparator<String>(){
+//      @Override
+//      public int compare(final String o1, final String o2) {
+//        return Integer.compare(o1.hashCode(), o2.hashCode());
+//      }
+//    });
+//    int i = 0;
+//    for (String applicationName : applicationNames) {
+//      labels[i] = new Label();
+//      keys[i] = applicationName.hashCode();
+//      namesArrays[i] = applications.get(applicationName).toArray(new String[applications.get(applicationName).size()]);
+//      i++;
+//    }
+//    methodVisitor = classWriter.visitMethod(
+//        ACC_PUBLIC | ACC_STATIC | ACC_SYNTHETIC,
+//        "$augmentationApplications",
+//        "(I)[Ljava/lang/String;",
+//        null, null);
+//    methodVisitor.visitCode();
+//    methodVisitor.visitVarInsn(ILOAD, 0);
+//    methodVisitor.visitLookupSwitchInsn(defaultLabel, keys, labels);
+//    for (i = 0; i < applicationsSize; i++) {
+//      methodVisitor.visitLabel(labels[i]);
+//      loadInteger(methodVisitor, namesArrays[i].length);
+//      methodVisitor.visitTypeInsn(ANEWARRAY, "java/lang/String");
+//      for (int j = 0; j < namesArrays[i].length; j++) {
+//        methodVisitor.visitInsn(DUP);
+//        loadInteger(methodVisitor, j);
+//        methodVisitor.visitLdcInsn(namesArrays[i][j]);
+//        methodVisitor.visitInsn(AASTORE);
+//      }
+//      methodVisitor.visitInsn(ARETURN);
+//    }
+//    methodVisitor.visitLabel(defaultLabel);
+//    loadInteger(methodVisitor, 0);
+//    methodVisitor.visitTypeInsn(ANEWARRAY, "java/lang/String");
+//    methodVisitor.visitInsn(ARETURN);
+//    methodVisitor.visitMaxs(0, 0);
+//    methodVisitor.visitEnd();
   }
 
 
   private void generateAugmentationBytecode(final GoloModule module, final String target, final Set<GoloFunction> functions) {
-    ClassWriter mainClassWriter = classWriter;
-    String mangledClass = target.replace('.', '$');
-    PackageAndClass packageAndClass = new PackageAndClass(
-        module.getPackageAndClass().packageName(),
-        module.getPackageAndClass().className() + "$" + mangledClass);
-    String augmentationClassInternalName = packageAndClass.toJVMType();
-    String outerName = module.getPackageAndClass().toJVMType();
-
-    mainClassWriter.visitInnerClass(
-        augmentationClassInternalName,
-        outerName,
-        mangledClass,
-        ACC_PUBLIC | ACC_STATIC);
-
-    classWriter = new ClassWriter(COMPUTE_FRAMES | COMPUTE_MAXS);
-    classWriter.visit(V1_8, ACC_PUBLIC | ACC_SUPER, augmentationClassInternalName, null, JOBJECT, null);
-    classWriter.visitSource(sourceFilename, null);
-    classWriter.visitOuterClass(outerName, null, null);
-
-    for (GoloFunction function : functions) {
-      function.accept(this);
-    }
-
-    Set<ModuleImport> imports = new HashSet<>(module.getImports());
-    imports.add(new ModuleImport(module.getPackageAndClass()));
-    writeImportMetaData(imports);
-
-    classWriter.visitEnd();
-    generationResults.add(new CodeGenerationResult(classWriter.toByteArray(), packageAndClass));
-    classWriter = mainClassWriter;
+    NotYetImplemented.t();
+//    ClassWriter mainClassWriter = classWriter;
+//    String mangledClass = target.replace('.', '$');
+//    PackageAndClass packageAndClass = new PackageAndClass(
+//        module.getPackageAndClass().packageName(),
+//        module.getPackageAndClass().className() + "$" + mangledClass);
+//    String augmentationClassInternalName = packageAndClass.toJVMType();
+//    String outerName = module.getPackageAndClass().toJVMType();
+//
+//    mainClassWriter.visitInnerClass(
+//        augmentationClassInternalName,
+//        outerName,
+//        mangledClass,
+//        ACC_PUBLIC | ACC_STATIC);
+//
+//    classWriter = new ClassWriter(COMPUTE_FRAMES | COMPUTE_MAXS);
+//    classWriter.visit(V1_8, ACC_PUBLIC | ACC_SUPER, augmentationClassInternalName, null, JOBJECT, null);
+//    classWriter.visitSource(sourceFilename, null);
+//    classWriter.visitOuterClass(outerName, null, null);
+//
+//    for (GoloFunction function : functions) {
+//      function.accept(this);
+//    }
+//
+//    Set<ModuleImport> imports = new HashSet<>(module.getImports());
+//    imports.add(new ModuleImport(module.getPackageAndClass()));
+//    writeImportMetaData(imports);
+//
+//    classWriter.visitEnd();
+//    generationResults.add(new CodeGenerationResult(classWriter.toByteArray(), packageAndClass));
+//    classWriter = mainClassWriter;
   }
 
   public Function visitFunction(final GoloFunction function) {
@@ -337,7 +313,6 @@ public class TruffleGenerationGoloIrVisitor {
     return new Function(body, function, frameDesc);
   }
 
-  @Override
   public void visitDecorator(final Decorator decorator) {
     decorator.getExpressionStatement().accept(this);
   }
@@ -456,7 +431,7 @@ public class TruffleGenerationGoloIrVisitor {
   }
 
   public ThrowNode visitThrowStatement(final ThrowStatement throwStatement) {
-    return ThrowNodeGen.create(throwStatement.getExpressionStatement().accept(this));
+    return ThrowNodeGen.create((ExpressionNode) throwStatement.getExpressionStatement().accept(this));
   }
 
   private ExpressionNode[] visitInvocationArguments(final AbstractInvocation invocation) {
@@ -518,20 +493,20 @@ public class TruffleGenerationGoloIrVisitor {
     return FunctionInvocationNode.create(functionInvocation.getName(), module, new EvalArgumentsNode(arguments));
   }
 
-  @Override
-  public void visitMethodInvocation(final MethodInvocation methodInvocation) {
-    List<Object> bootstrapArgs = new ArrayList<>();
-    bootstrapArgs.add(methodInvocation.isNullSafeGuarded() ? 1 : 0);
-    List<String> argumentNames = visitInvocationArguments(methodInvocation);
-    bootstrapArgs.addAll(argumentNames);
-    methodVisitor.visitInvokeDynamicInsn(
-        methodInvocation.getName().replaceAll("\\.", "#"),
-        goloFunctionSignature(methodInvocation.getArity() + 1),
-        METHOD_INVOCATION_HANDLE,
-        bootstrapArgs.toArray());
-    for (FunctionInvocation invocation : methodInvocation.getAnonymousFunctionInvocations()) {
-      invocation.accept(this);
-    }
+  public ExpressionNode visitMethodInvocation(final MethodInvocation methodInvocation) {
+    throw new NotYetImplemented();
+//    List<Object> bootstrapArgs = new ArrayList<>();
+//    bootstrapArgs.add(methodInvocation.isNullSafeGuarded() ? 1 : 0);
+//    List<String> argumentNames = visitInvocationArguments(methodInvocation);
+//    bootstrapArgs.addAll(argumentNames);
+//    methodVisitor.visitInvokeDynamicInsn(
+//        methodInvocation.getName().replaceAll("\\.", "#"),
+//        goloFunctionSignature(methodInvocation.getArity() + 1),
+//        METHOD_INVOCATION_HANDLE,
+//        bootstrapArgs.toArray());
+//    for (FunctionInvocation invocation : methodInvocation.getAnonymousFunctionInvocations()) {
+//      invocation.accept(this);
+//    }
   }
 
   public ExpressionNode visitAssignmentStatement(final AssignmentStatement assignmentStatement) {
@@ -609,44 +584,44 @@ public class TruffleGenerationGoloIrVisitor {
     return new ForLoopNode(init, condition, body, post);
   }
 
-  @Override
-  public void visitLoopBreakFlowStatement(final LoopBreakFlowStatement loopBreakFlowStatement) {
-    Label jumpTarget;
-    if (LoopBreakFlowStatement.Type.BREAK.equals(loopBreakFlowStatement.getType())) {
-      jumpTarget = context.loopEndMap.get(loopBreakFlowStatement.getEnclosingLoop());
-    } else {
-      jumpTarget = context.loopStartMap.get(loopBreakFlowStatement.getEnclosingLoop());
-    }
-    methodVisitor.visitLdcInsn(0);
-    methodVisitor.visitJumpInsn(IFEQ, jumpTarget);
-    // NOP + ATHROW invalid frames if the GOTO is followed by an else branch code...
-    // methodVisitor.visitJumpInsn(GOTO, jumpTarget);
+  public ExpressionNode visitLoopBreakFlowStatement(final LoopBreakFlowStatement loopBreakFlowStatement) {
+    throw new NotYetImplemented();
+//    Label jumpTarget;
+//    if (LoopBreakFlowStatement.Type.BREAK.equals(loopBreakFlowStatement.getType())) {
+//      jumpTarget = context.loopEndMap.get(loopBreakFlowStatement.getEnclosingLoop());
+//    } else {
+//      jumpTarget = context.loopStartMap.get(loopBreakFlowStatement.getEnclosingLoop());
+//    }
+//    methodVisitor.visitLdcInsn(0);
+//    methodVisitor.visitJumpInsn(IFEQ, jumpTarget);
+//    // NOP + ATHROW invalid frames if the GOTO is followed by an else branch code...
+//    // methodVisitor.visitJumpInsn(GOTO, jumpTarget);
   }
 
-  @Override
-  public void visitCollectionLiteral(final CollectionLiteral collectionLiteral) {
-    switch (collectionLiteral.getType()) {
-      case tuple:
-        createTuple(collectionLiteral);
-        break;
-      case array:
-        createArray(collectionLiteral);
-        break;
-      case list:
-        createList(collectionLiteral);
-        break;
-      case vector:
-        createVector(collectionLiteral);
-        break;
-      case set:
-        createSet(collectionLiteral);
-        break;
-      case map:
-        createMap(collectionLiteral);
-        break;
-      default:
-        throw new UnsupportedOperationException("Can't handle collections of type " + collectionLiteral.getType() + " yet");
-    }
+  public ExpressionNode visitCollectionLiteral(final CollectionLiteral collectionLiteral) {
+    throw new NotYetImplemented();
+//    switch (collectionLiteral.getType()) {
+//      case tuple:
+//        createTuple(collectionLiteral);
+//        break;
+//      case array:
+//        createArray(collectionLiteral);
+//        break;
+//      case list:
+//        createList(collectionLiteral);
+//        break;
+//      case vector:
+//        createVector(collectionLiteral);
+//        break;
+//      case set:
+//        createSet(collectionLiteral);
+//        break;
+//      case map:
+//        createMap(collectionLiteral);
+//        break;
+//      default:
+//        throw new UnsupportedOperationException("Can't handle collections of type " + collectionLiteral.getType() + " yet");
+//    }
   }
 
   private void createMap(final CollectionLiteral collectionLiteral) {
@@ -725,98 +700,98 @@ public class TruffleGenerationGoloIrVisitor {
     methodVisitor.visitMethodInsn(INVOKESPECIAL, "gololang/Tuple", "<init>", "([Ljava/lang/Object;)V", false);
   }
 
-  @Override
-  public void visitTryCatchFinally(final TryCatchFinally tryCatchFinally) {
-    Label tryStart = new Label();
-    Label tryEnd = new Label();
-    Label catchStart = new Label();
-    Label catchEnd = new Label();
-
-    Label rethrowStart = null;
-    Label rethrowEnd = null;
-    if (tryCatchFinally.isTryCatchFinally()) {
-      rethrowStart = new Label();
-      rethrowEnd = new Label();
-    }
-
-    methodVisitor.visitLabel(tryStart);
-    tryCatchFinally.getTryBlock().accept(this);
-    if (tryCatchFinally.isTryCatch() || tryCatchFinally.isTryCatchFinally()) {
-      methodVisitor.visitJumpInsn(GOTO, catchEnd);
-    }
-    methodVisitor.visitTryCatchBlock(tryStart, tryEnd, catchStart, null);
-    methodVisitor.visitLabel(tryEnd);
-
-    if (tryCatchFinally.isTryFinally()) {
-      tryCatchFinally.getFinallyBlock().accept(this);
-      methodVisitor.visitJumpInsn(GOTO, catchEnd);
-    }
-
-    if (tryCatchFinally.isTryCatchFinally()) {
-      methodVisitor.visitTryCatchBlock(catchStart, catchEnd, rethrowStart, null);
-    }
-
-    methodVisitor.visitLabel(catchStart);
-    if (tryCatchFinally.isTryCatch() || tryCatchFinally.isTryCatchFinally()) {
-      Block catchBlock = tryCatchFinally.getCatchBlock();
-      int exceptionRefIndex = catchBlock.getReferenceTable().get(tryCatchFinally.getExceptionId()).getIndex();
-      methodVisitor.visitVarInsn(ASTORE, exceptionRefIndex);
-      tryCatchFinally.getCatchBlock().accept(this);
-    } else {
-      tryCatchFinally.getFinallyBlock().accept(this);
-      methodVisitor.visitInsn(ATHROW);
-    }
-    methodVisitor.visitLabel(catchEnd);
-
-    if (tryCatchFinally.isTryCatchFinally()) {
-      tryCatchFinally.getFinallyBlock().accept(this);
-      methodVisitor.visitJumpInsn(GOTO, rethrowEnd);
-      methodVisitor.visitLabel(rethrowStart);
-      tryCatchFinally.getFinallyBlock().accept(this);
-      methodVisitor.visitInsn(ATHROW);
-      methodVisitor.visitLabel(rethrowEnd);
-    }
+  public ExpressionNode visitTryCatchFinally(final TryCatchFinally tryCatchFinally) {
+    throw new NotYetImplemented();
+//    Label tryStart = new Label();
+//    Label tryEnd = new Label();
+//    Label catchStart = new Label();
+//    Label catchEnd = new Label();
+//
+//    Label rethrowStart = null;
+//    Label rethrowEnd = null;
+//    if (tryCatchFinally.isTryCatchFinally()) {
+//      rethrowStart = new Label();
+//      rethrowEnd = new Label();
+//    }
+//
+//    methodVisitor.visitLabel(tryStart);
+//    tryCatchFinally.getTryBlock().accept(this);
+//    if (tryCatchFinally.isTryCatch() || tryCatchFinally.isTryCatchFinally()) {
+//      methodVisitor.visitJumpInsn(GOTO, catchEnd);
+//    }
+//    methodVisitor.visitTryCatchBlock(tryStart, tryEnd, catchStart, null);
+//    methodVisitor.visitLabel(tryEnd);
+//
+//    if (tryCatchFinally.isTryFinally()) {
+//      tryCatchFinally.getFinallyBlock().accept(this);
+//      methodVisitor.visitJumpInsn(GOTO, catchEnd);
+//    }
+//
+//    if (tryCatchFinally.isTryCatchFinally()) {
+//      methodVisitor.visitTryCatchBlock(catchStart, catchEnd, rethrowStart, null);
+//    }
+//
+//    methodVisitor.visitLabel(catchStart);
+//    if (tryCatchFinally.isTryCatch() || tryCatchFinally.isTryCatchFinally()) {
+//      Block catchBlock = tryCatchFinally.getCatchBlock();
+//      int exceptionRefIndex = catchBlock.getReferenceTable().get(tryCatchFinally.getExceptionId()).getIndex();
+//      methodVisitor.visitVarInsn(ASTORE, exceptionRefIndex);
+//      tryCatchFinally.getCatchBlock().accept(this);
+//    } else {
+//      tryCatchFinally.getFinallyBlock().accept(this);
+//      methodVisitor.visitInsn(ATHROW);
+//    }
+//    methodVisitor.visitLabel(catchEnd);
+//
+//    if (tryCatchFinally.isTryCatchFinally()) {
+//      tryCatchFinally.getFinallyBlock().accept(this);
+//      methodVisitor.visitJumpInsn(GOTO, rethrowEnd);
+//      methodVisitor.visitLabel(rethrowStart);
+//      tryCatchFinally.getFinallyBlock().accept(this);
+//      methodVisitor.visitInsn(ATHROW);
+//      methodVisitor.visitLabel(rethrowEnd);
+//    }
   }
 
-  @Override
-  public void visitClosureReference(final ClosureReference closureReference) {
-    GoloFunction target = closureReference.getTarget();
-    final boolean isVarArgs = target.isVarargs();
-    final int arity = (isVarArgs) ? target.getArity() - 1 : target.getArity();
-    final int syntheticCount = closureReference.getTarget().getSyntheticParameterCount();
-    methodVisitor.visitInvokeDynamicInsn(
-        target.getName(),
-        methodType(FunctionReference.class).toMethodDescriptorString(),
-        CLOSUREREF_HANDLE,
-        klass,
-        (Integer) arity,
-        (Boolean) isVarArgs);
-    if (syntheticCount > 0) {
-      String[] refs = closureReference.getCapturedReferenceNames().toArray(new String[syntheticCount]);
-      loadInteger(methodVisitor, 0);
-      loadInteger(methodVisitor, syntheticCount);
-      methodVisitor.visitTypeInsn(ANEWARRAY, "java/lang/Object");
-      ReferenceTable table = context.referenceTableStack.peek();
-      for (int i = 0; i < syntheticCount; i++) {
-        methodVisitor.visitInsn(DUP);
-        loadInteger(methodVisitor, i);
-        methodVisitor.visitVarInsn(ALOAD, table.get(refs[i]).getIndex());
-        methodVisitor.visitInsn(AASTORE);
-      }
-      methodVisitor.visitMethodInsn(
-          INVOKEVIRTUAL,
-          "gololang/FunctionReference",
-          "insertArguments",
-          "(I[Ljava/lang/Object;)Lgololang/FunctionReference;", false);
-      if (isVarArgs) {
-        methodVisitor.visitLdcInsn(Type.getType(Object[].class));
-        methodVisitor.visitMethodInsn(
-            INVOKEVIRTUAL,
-            "gololang/FunctionReference",
-            "asVarargsCollector",
-            "(Ljava/lang/Class;)Lgololang/FunctionReference;", false);
-      }
-    }
+  public ExpressionNode visitClosureReference(final ClosureReference closureReference) {
+    throw new NotYetImplemented();
+//    GoloFunction target = closureReference.getTarget();
+//    final boolean isVarArgs = target.isVarargs();
+//    final int arity = (isVarArgs) ? target.getArity() - 1 : target.getArity();
+//    final int syntheticCount = closureReference.getTarget().getSyntheticParameterCount();
+//    methodVisitor.visitInvokeDynamicInsn(
+//        target.getName(),
+//        methodType(FunctionReference.class).toMethodDescriptorString(),
+//        CLOSUREREF_HANDLE,
+//        klass,
+//        (Integer) arity,
+//        (Boolean) isVarArgs);
+//    if (syntheticCount > 0) {
+//      String[] refs = closureReference.getCapturedReferenceNames().toArray(new String[syntheticCount]);
+//      loadInteger(methodVisitor, 0);
+//      loadInteger(methodVisitor, syntheticCount);
+//      methodVisitor.visitTypeInsn(ANEWARRAY, "java/lang/Object");
+//      ReferenceTable table = context.referenceTableStack.peek();
+//      for (int i = 0; i < syntheticCount; i++) {
+//        methodVisitor.visitInsn(DUP);
+//        loadInteger(methodVisitor, i);
+//        methodVisitor.visitVarInsn(ALOAD, table.get(refs[i]).getIndex());
+//        methodVisitor.visitInsn(AASTORE);
+//      }
+//      methodVisitor.visitMethodInsn(
+//          INVOKEVIRTUAL,
+//          "gololang/FunctionReference",
+//          "insertArguments",
+//          "(I[Ljava/lang/Object;)Lgololang/FunctionReference;", false);
+//      if (isVarArgs) {
+//        methodVisitor.visitLdcInsn(Type.getType(Object[].class));
+//        methodVisitor.visitMethodInsn(
+//            INVOKEVIRTUAL,
+//            "gololang/FunctionReference",
+//            "asVarargsCollector",
+//            "(Ljava/lang/Class;)Lgololang/FunctionReference;", false);
+//      }
+//    }
   }
 
   public BinaryNode visitBinaryOperation(final BinaryOperation binaryOperation) {
@@ -844,20 +819,10 @@ public class TruffleGenerationGoloIrVisitor {
     }
   }
 
-  private OrNode orOperator(final BinaryOperation binaryOperation) {
-	return new OrNode(binaryOperation.getLeftExpression().accept(this),
-			binaryOperation.getRightExpression().accept(this));
-  }
-
-  private void andOperator(final BinaryOperation binaryOperation) {
-	return new AndNode(binaryOperation.getLeftExpression().accept(this),
-			binaryOperation.getRightExpression().accept(this));
-  }
-
-  @Override
-  public void visitUnaryOperation(final UnaryOperation unaryOperation) {
-    String name = unaryOperation.getType().name().toLowerCase();
-    unaryOperation.getExpressionStatement().accept(this);
-    methodVisitor.visitInvokeDynamicInsn(name, goloFunctionSignature(1), OPERATOR_HANDLE, (Integer) 1);
+  public ExpressionNode visitUnaryOperation(final UnaryOperation unaryOperation) {
+    throw new NotYetImplemented();
+//    String name = unaryOperation.getType().name().toLowerCase();
+//    unaryOperation.getExpressionStatement().accept(this);
+//    methodVisitor.visitInvokeDynamicInsn(name, goloFunctionSignature(1), OPERATOR_HANDLE, (Integer) 1);
   }
 }
