@@ -23,7 +23,7 @@ public class UnaryOperation extends ExpressionStatement {
   private final OperatorType type;
   private final ExpressionStatement expressionStatement;
 
-  public UnaryOperation(OperatorType type, ExpressionStatement expressionStatement) {
+  public UnaryOperation(final OperatorType type, final ExpressionStatement expressionStatement) {
     super();
     this.type = type;
     this.expressionStatement = expressionStatement;
@@ -38,7 +38,7 @@ public class UnaryOperation extends ExpressionStatement {
   }
 
   @Override
-  public void accept(GoloIrVisitor visitor) {
+  public void accept(final GoloIrVisitor visitor) {
     visitor.visitUnaryOperation(this);
   }
 }

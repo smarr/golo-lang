@@ -27,7 +27,7 @@ public class CollectionLiteral extends ExpressionStatement {
   private final Type type;
   private final List<ExpressionStatement> expressions;
 
-  public CollectionLiteral(Type type, List<ExpressionStatement> expressions) {
+  public CollectionLiteral(final Type type, final List<ExpressionStatement> expressions) {
     this.type = type;
     this.expressions = expressions;
   }
@@ -41,7 +41,7 @@ public class CollectionLiteral extends ExpressionStatement {
   }
 
   @Override
-  public void accept(GoloIrVisitor visitor) {
+  public void accept(final GoloIrVisitor visitor) {
     visitor.visitCollectionLiteral(this);
   }
 }

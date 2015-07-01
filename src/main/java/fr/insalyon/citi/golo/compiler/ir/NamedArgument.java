@@ -21,7 +21,7 @@ public class NamedArgument extends ExpressionStatement {
   private String name;
   private ExpressionStatement expression;
 
-  public NamedArgument(String name, ExpressionStatement expression) {
+  public NamedArgument(final String name, final ExpressionStatement expression) {
     this.name = name;
     this.expression = expression;
   }
@@ -30,7 +30,7 @@ public class NamedArgument extends ExpressionStatement {
     return name;
   }
 
-  public void setName(String name) {
+  public void setName(final String name) {
     this.name = name;
   }
 
@@ -38,12 +38,12 @@ public class NamedArgument extends ExpressionStatement {
     return expression;
   }
 
-  public void setExpression(ExpressionStatement expression) {
+  public void setExpression(final ExpressionStatement expression) {
     this.expression = expression;
   }
 
   @Override
-  public void accept(GoloIrVisitor visitor) {
+  public void accept(final GoloIrVisitor visitor) {
 
   }
 }

@@ -20,13 +20,13 @@ public class ThrowStatement extends GoloStatement {
 
   private final GoloStatement expressionStatement;
 
-  public ThrowStatement(GoloStatement expressionStatement) {
+  public ThrowStatement(final GoloStatement expressionStatement) {
     super();
     this.expressionStatement = expressionStatement;
   }
 
   @Override
-  public void accept(GoloIrVisitor visitor) {
+  public void accept(final GoloIrVisitor visitor) {
     visitor.visitThrowStatement(this);
   }
 

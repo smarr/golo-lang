@@ -20,11 +20,11 @@ public class MethodInvocation extends AbstractInvocation {
 
   private boolean nullSafeGuarded = false;
 
-  public MethodInvocation(String name) {
+  public MethodInvocation(final String name) {
     super(name);
   }
 
-  public void setNullSafeGuarded(boolean nullSafeGuarded) {
+  public void setNullSafeGuarded(final boolean nullSafeGuarded) {
     this.nullSafeGuarded = nullSafeGuarded;
   }
 
@@ -33,7 +33,7 @@ public class MethodInvocation extends AbstractInvocation {
   }
 
   @Override
-  public void accept(GoloIrVisitor visitor) {
+  public void accept(final GoloIrVisitor visitor) {
     visitor.visitMethodInvocation(this);
   }
 }

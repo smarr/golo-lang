@@ -24,7 +24,7 @@ public class ClosureReference extends ExpressionStatement {
   private final GoloFunction target;
   private final Set<String> capturedReferenceNames = new LinkedHashSet<>();
 
-  public ClosureReference(GoloFunction target) {
+  public ClosureReference(final GoloFunction target) {
     super();
     this.target = target;
     this.setASTNode(target.getASTNode());
@@ -38,12 +38,12 @@ public class ClosureReference extends ExpressionStatement {
     return capturedReferenceNames;
   }
 
-  public boolean addCapturedReferenceName(String s) {
+  public boolean addCapturedReferenceName(final String s) {
     return capturedReferenceNames.add(s);
   }
 
   @Override
-  public void accept(GoloIrVisitor visitor) {
+  public void accept(final GoloIrVisitor visitor) {
     visitor.visitClosureReference(this);
   }
 }

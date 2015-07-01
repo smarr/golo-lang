@@ -23,7 +23,7 @@ public class TryCatchFinally extends GoloStatement {
   private final Block catchBlock;
   private final Block finallyBlock;
 
-  public TryCatchFinally(String exceptionId, Block tryBlock, Block catchBlock, Block finallyBlock) {
+  public TryCatchFinally(final String exceptionId, final Block tryBlock, final Block catchBlock, final Block finallyBlock) {
     super();
     this.exceptionId = exceptionId;
     this.tryBlock = tryBlock;
@@ -68,7 +68,7 @@ public class TryCatchFinally extends GoloStatement {
   }
 
   @Override
-  public void accept(GoloIrVisitor visitor) {
+  public void accept(final GoloIrVisitor visitor) {
     visitor.visitTryCatchFinally(this);
   }
 }
