@@ -104,7 +104,7 @@ import gololang.truffle.EvalArgumentsNode;
 import gololang.truffle.ExpressionNode;
 import gololang.truffle.ForLoopNode;
 import gololang.truffle.Function;
-import gololang.truffle.FunctionInvocationNodeGen;
+import gololang.truffle.FunctionInvocationNode;
 import gololang.truffle.IfNode;
 import gololang.truffle.LocalVariableReadNode;
 import gololang.truffle.LocalVariableWriteNodeGen;
@@ -514,7 +514,7 @@ public class TruffleGenerationGoloIrVisitor {
     }
 
     // Could also be a ClosureInvocationNode, see one of the NYI branches. and earlier isConstant()
-    return FunctionInvocationNodeGen.create(functionInvocation.getName(), module, new EvalArgumentsNode(arguments));
+    return FunctionInvocationNode.create(functionInvocation.getName(), module, new EvalArgumentsNode(arguments));
   }
 
   @Override
@@ -550,7 +550,8 @@ public class TruffleGenerationGoloIrVisitor {
   }
 
   private FrameSlot getFrameSlot(final LocalReference reference) {
-    FrameSlot slot = context.frameDescriptors.peek().findOrAddFrameSlot(reference.getName(), FrameSlotKind.Object); // TODO: might want to specialize this later on
+    // TODO: might want to specialize this later on
+    FrameSlot slot = context.frameDescriptors.peek().findOrAddFrameSlot(reference.getName(), FrameSlotKind.Object);
     return slot;
   }
 
