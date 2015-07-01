@@ -215,7 +215,7 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
     block = new Block(table);
     for (String member : node.getMembers()) {
       call.addArgument(new ReferenceLookup(member));
-      table.add(new LocalReference(CONSTANT, member));
+      table.add(new LocalReference(true, member));
     }
     factory.setBlock(block);
     block.addStatement(new ReturnStatement(call));
@@ -228,7 +228,7 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
     block = new Block(table);
     for (String member : node.getMembers()) {
       call.addArgument(new ReferenceLookup(member));
-      table.add(new LocalReference(CONSTANT, member));
+      table.add(new LocalReference(true, member));
     }
     factory.setBlock(block);
     block.addStatement(new ReturnStatement(call));
@@ -436,7 +436,7 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
     Block functionBlock = function.getBlock();
     ReferenceTable referenceTable = functionBlock.getReferenceTable();
     for (String parameter : function.getParameterNames()) {
-      referenceTable.add(new LocalReference(CONSTANT, parameter));
+      referenceTable.add(new LocalReference(true, parameter));
     }
     insertMissingReturnStatement(function);
     if (isSynthetic) {

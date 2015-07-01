@@ -106,6 +106,7 @@ import gololang.truffle.ForLoopNode;
 import gololang.truffle.Function;
 import gololang.truffle.FunctionInvocationNode;
 import gololang.truffle.IfNode;
+import gololang.truffle.LocalArgumentReadNode;
 import gololang.truffle.LocalVariableReadNode;
 import gololang.truffle.LocalVariableWriteNodeGen;
 import gololang.truffle.NotYetImplemented;
@@ -564,6 +565,8 @@ public class TruffleGenerationGoloIrVisitor {
 //          "()Ljava/lang/Object;",
 //          FUNCTION_INVOCATION_HANDLE,
 //          (Object) 0);
+    } else if (reference.isArgument()) {
+      return new LocalArgumentReadNode(reference.getIndex());
     } else {
       FrameSlot slot = getFrameSlot(reference);
       return new LocalVariableReadNode(slot);

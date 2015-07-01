@@ -25,19 +25,30 @@ public final class LocalReference {
   private final Kind kind;
   private final String name;
   private final boolean synthetic;
+  private final boolean isArgument;
 
   private int index = -1;
 
-  public LocalReference(Kind kind, String name) {
+  public LocalReference(final Kind kind, final String name) {
     this.kind = kind;
     this.name = name;
     this.synthetic = false;
+    this.isArgument = false;
   }
 
-  public LocalReference(Kind kind, String name, boolean synthetic) {
+  public LocalReference(final boolean isArgument, final String name) {
+    this.kind = Kind.CONSTANT;
+    this.name = name;
+    assert isArgument == true;
+    this.isArgument = true;
+    this.synthetic = false;
+  }
+
+  public LocalReference(final Kind kind, final String name, final boolean synthetic) {
     this.kind = kind;
     this.name = name;
     this.synthetic = synthetic;
+    this.isArgument = false;
   }
 
   public Kind getKind() {
@@ -60,7 +71,7 @@ public final class LocalReference {
     return index;
   }
 
-  public void setIndex(int index) {
+  public void setIndex(final int index) {
     this.index = index;
   }
 
@@ -74,14 +85,22 @@ public final class LocalReference {
   }
 
   @Override
-  public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
+  public boolean equals(final Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
 
     LocalReference that = (LocalReference) o;
 
-    if (kind != that.kind) return false;
-    if (!name.equals(that.name)) return false;
+    if (kind != that.kind) {
+      return false;
+    }
+    if (!name.equals(that.name)) {
+      return false;
+    }
 
     return true;
   }
@@ -91,5 +110,9 @@ public final class LocalReference {
     int result = kind.hashCode();
     result = 31 * result + name.hashCode();
     return result;
+  }
+
+  public boolean isArgument() {
+    return isArgument;
   }
 }
