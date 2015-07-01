@@ -16,17 +16,21 @@
 
 package fr.insalyon.citi.golo.cli.command;
 
-import com.beust.jcommander.Parameter;
-import com.beust.jcommander.Parameters;
-import fr.insalyon.citi.golo.cli.command.spi.CliCommand;
-import fr.insalyon.citi.golo.compiler.GoloClassLoader;
-import fr.insalyon.citi.golo.compiler.GoloCompilationException;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.net.URLClassLoader;
 import java.util.LinkedList;
 import java.util.List;
+
+import com.beust.jcommander.Parameter;
+import com.beust.jcommander.Parameters;
+import com.oracle.truffle.api.Truffle;
+
+import fr.insalyon.citi.golo.cli.command.spi.CliCommand;
+import fr.insalyon.citi.golo.compiler.GoloClassLoader;
+import fr.insalyon.citi.golo.compiler.GoloCompilationException;
+import fr.insalyon.citi.golo.compiler.GoloCompiler;
+import gololang.truffle.Function;
 
 @Parameters(commandNames = {"golo"}, commandDescription = "Dynamically loads and runs from Golo source files")
 public class GoloGoloCommand implements CliCommand {
@@ -43,6 +47,10 @@ public class GoloGoloCommand implements CliCommand {
   @Parameter(names = "--classpath", variableArity = true, description = "Classpath elements (.jar and directories)")
   List<String> classpath = new LinkedList<>();
 
+  @Parameter(names = "--truffle", description = "Uses Truffle for execution")
+  boolean truffle = false;
+
+  @Override
   public void execute() throws Throwable {
     URLClassLoader primaryClassLoader = primaryClassLoader(this.classpath);
     Thread.currentThread().setContextClassLoader(primaryClassLoader);
@@ -58,7 +66,7 @@ public class GoloGoloCommand implements CliCommand {
     callRun(lastClass, this.arguments.toArray(new String[this.arguments.size()]));
   }
 
-  private Class<?> loadGoloFile(String goloFile, String module, GoloClassLoader loader) throws Throwable {
+  private Class<?> loadGoloFile(final String goloFile, final String module, final GoloClassLoader loader) throws Throwable {
     File file = new File(goloFile);
     if (!file.exists()) {
       System.out.println("Error: " + file.getAbsolutePath() + " does not exist.");
@@ -76,9 +84,15 @@ public class GoloGoloCommand implements CliCommand {
       }
     } else if (file.getName().endsWith(".golo")) {
       try (FileInputStream in = new FileInputStream(file)) {
-        Class<?> loadedClass = loader.load(file.getName(), in);
-        if (module == null || loadedClass.getCanonicalName().equals(module)) {
-          return loadedClass;
+        if (truffle) {
+          GoloCompiler compiler = new GoloCompiler();
+          Function fun = compiler.compileAndGetMain(file.getName(), in);
+          Truffle.getRuntime().createCallTarget(fun).call(new Object[] {new String[0]});
+        } else {
+          Class<?> loadedClass = loader.load(file.getName(), in);
+          if (module == null || loadedClass.getCanonicalName().equals(module)) {
+            return loadedClass;
+          }
         }
       } catch (GoloCompilationException e) {
         handleCompilationException(e);
