@@ -131,4 +131,9 @@ public final class ReferenceTable {
   public void remove(final String name) {
     table.remove(name);
   }
+
+  @Override
+  public String toString() {
+    return "RefTable(" + table.toString() + ")";
+  }
 }

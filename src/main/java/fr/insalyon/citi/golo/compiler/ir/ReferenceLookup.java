@@ -46,4 +46,9 @@ public class ReferenceLookup extends ExpressionStatement {
   public Node accept(final TruffleGenerationGoloIrVisitor visitor) {
     return visitor.visitReferenceLookup(this);
   }
+
+  @Override
+  public String toString() {
+    return "RefLookup(" + name + ")";
+  }
 }
