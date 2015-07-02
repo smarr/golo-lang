@@ -1,4 +1,4 @@
-package gololang.truffle;
+package gololang.truffle.nodes.conrolflow;
 
 import com.oracle.truffle.api.nodes.ControlFlowException;
 

@@ -1,4 +1,6 @@
-package gololang.truffle;
+package gololang.truffle.nodes.conrolflow;
+
+import gololang.truffle.UnaryNode;
 
 import com.oracle.truffle.api.dsl.Specialization;
 

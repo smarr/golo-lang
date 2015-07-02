@@ -1,4 +1,6 @@
-package gololang.truffle;
+package gololang.truffle.nodes.conrolflow;
+
+import gololang.truffle.ExpressionNode;
 
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.Truffle;

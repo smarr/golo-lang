@@ -76,17 +76,11 @@ import fr.insalyon.citi.golo.runtime.OperatorType;
 import gololang.truffle.BinaryNode;
 import gololang.truffle.EvalArgumentsNode;
 import gololang.truffle.ExpressionNode;
-import gololang.truffle.ForLoopNode;
 import gololang.truffle.Function;
-import gololang.truffle.FunctionInvocationNode;
-import gololang.truffle.IfNode;
 import gololang.truffle.LocalArgumentReadNode;
 import gololang.truffle.LocalVariableReadNode;
 import gololang.truffle.LocalVariableWriteNodeGen;
 import gololang.truffle.NotYetImplemented;
-import gololang.truffle.ReturnNode;
-import gololang.truffle.SequenceNode;
-import gololang.truffle.ThrowNode;
 import gololang.truffle.ThrowNodeGen;
 import gololang.truffle.literals.LiteralNode;
 import gololang.truffle.literals.LiteralNode.CharacterLiteralNode;
@@ -98,6 +92,12 @@ import gololang.truffle.literals.LiteralNode.LongLiteralNode;
 import gololang.truffle.literals.LiteralNode.NullLiteralNode;
 import gololang.truffle.literals.LiteralNode.StringLiteralNode;
 import gololang.truffle.literals.LiteralNode.TrueLiteralNode;
+import gololang.truffle.nodes.conrolflow.ForLoopNode;
+import gololang.truffle.nodes.conrolflow.FunctionInvocationNode;
+import gololang.truffle.nodes.conrolflow.IfNode;
+import gololang.truffle.nodes.conrolflow.ReturnNode;
+import gololang.truffle.nodes.conrolflow.SequenceNode;
+import gololang.truffle.nodes.conrolflow.ThrowNode;
 
 public class TruffleGenerationGoloIrVisitor {
 

@@ -1,4 +1,6 @@
-package gololang.truffle;
+package gololang.truffle.nodes.conrolflow;
+
+import gololang.truffle.ExpressionNode;
 
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.ExplodeLoop;

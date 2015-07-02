@@ -5,6 +5,7 @@ import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.RootNode;
 
 import fr.insalyon.citi.golo.compiler.ir.GoloFunction;
+import gololang.truffle.nodes.conrolflow.ReturnException;
 
 
 public final class Function extends RootNode {
