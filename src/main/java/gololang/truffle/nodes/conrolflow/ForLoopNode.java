@@ -31,7 +31,9 @@ public final class ForLoopNode extends ExpressionNode {
     if (init != null) {
       init.executeGeneric(frame);
     }
-    loopNode.executeLoop(frame);
+    try {
+      loopNode.executeLoop(frame);
+    } catch (BreakLoopException e) { /* just left the loop */ }
     return null;
   }
 

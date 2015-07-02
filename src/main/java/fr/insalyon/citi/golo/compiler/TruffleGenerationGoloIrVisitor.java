@@ -91,6 +91,7 @@ import gololang.truffle.literals.LiteralNode.LongLiteralNode;
 import gololang.truffle.literals.LiteralNode.NullLiteralNode;
 import gololang.truffle.literals.LiteralNode.StringLiteralNode;
 import gololang.truffle.literals.LiteralNode.TrueLiteralNode;
+import gololang.truffle.nodes.conrolflow.BreakLoopNode;
 import gololang.truffle.nodes.conrolflow.ForLoopNode;
 import gololang.truffle.nodes.conrolflow.FunctionInvocationNode;
 import gololang.truffle.nodes.conrolflow.IfNode;
@@ -585,17 +586,13 @@ public class TruffleGenerationGoloIrVisitor {
   }
 
   public ExpressionNode visitLoopBreakFlowStatement(final LoopBreakFlowStatement loopBreakFlowStatement) {
-    throw new NotYetImplemented();
-//    Label jumpTarget;
-//    if (LoopBreakFlowStatement.Type.BREAK.equals(loopBreakFlowStatement.getType())) {
-//      jumpTarget = context.loopEndMap.get(loopBreakFlowStatement.getEnclosingLoop());
-//    } else {
+
+    if (LoopBreakFlowStatement.Type.BREAK.equals(loopBreakFlowStatement.getType())) {
+      return new BreakLoopNode();
+    } else {
+      throw new NotYetImplemented();
 //      jumpTarget = context.loopStartMap.get(loopBreakFlowStatement.getEnclosingLoop());
-//    }
-//    methodVisitor.visitLdcInsn(0);
-//    methodVisitor.visitJumpInsn(IFEQ, jumpTarget);
-//    // NOP + ATHROW invalid frames if the GOTO is followed by an else branch code...
-//    // methodVisitor.visitJumpInsn(GOTO, jumpTarget);
+    }
   }
 
   public ExpressionNode visitCollectionLiteral(final CollectionLiteral collectionLiteral) {
