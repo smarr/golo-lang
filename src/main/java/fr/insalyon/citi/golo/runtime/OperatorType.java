@@ -25,6 +25,7 @@ import gololang.truffle.MinusNodeGen;
 import gololang.truffle.NotEqualNodeGen;
 import gololang.truffle.NotYetImplemented;
 import gololang.truffle.PlusNodeGen;
+import gololang.truffle.TimesNodeGen;
 
 public enum OperatorType {
 
@@ -43,7 +44,7 @@ public enum OperatorType {
   TIMES("*") {
     @Override
     public BinaryNode createNode(final ExpressionNode left, final ExpressionNode right) {
-      throw new NotYetImplemented();
+      return TimesNodeGen.create(left, right);
     }
   },
   DIVIDE("/") {
