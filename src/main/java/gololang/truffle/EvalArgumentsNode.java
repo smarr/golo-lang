@@ -12,6 +12,10 @@ public final class EvalArgumentsNode extends ExpressionNode {
     this.argumentNodes = argumentNodes;
   }
 
+  public ExpressionNode[] getArgumentNodes() {
+    return argumentNodes;
+  }
+
   @Override
   @ExplodeLoop
   public Object[] executeObjectArray(final VirtualFrame frame) {

@@ -7,6 +7,19 @@ import static fr.insalyon.citi.golo.runtime.TypeMatching.canAssign;
 import static fr.insalyon.citi.golo.runtime.TypeMatching.haveEnoughArgumentsForVarargs;
 import static fr.insalyon.citi.golo.runtime.TypeMatching.haveSameNumberOfArguments;
 import static fr.insalyon.citi.golo.runtime.TypeMatching.isLastArgumentAnArray;
+import fr.insalyon.citi.golo.compiler.ir.GoloFunction;
+import fr.insalyon.citi.golo.compiler.ir.GoloModule;
+import fr.insalyon.citi.golo.compiler.ir.ModuleImport;
+import fr.insalyon.citi.golo.runtime.FunctionCallSupport;
+import gololang.Predefined;
+import gololang.truffle.DoubleValueNodeGen;
+import gololang.truffle.EvalArgumentsNode;
+import gololang.truffle.ExpressionNode;
+import gololang.truffle.Function;
+import gololang.truffle.IntValueNodeGen;
+import gololang.truffle.NotYetImplemented;
+import gololang.truffle.PreEvaluated;
+import gololang.truffle.PrintlnNodeGen;
 
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
@@ -22,16 +35,7 @@ import com.oracle.truffle.api.Truffle;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.DirectCallNode;
 
-import fr.insalyon.citi.golo.compiler.ir.GoloFunction;
-import fr.insalyon.citi.golo.compiler.ir.GoloModule;
-import fr.insalyon.citi.golo.compiler.ir.ModuleImport;
-import fr.insalyon.citi.golo.runtime.FunctionCallSupport;
-import gololang.truffle.EvalArgumentsNode;
-import gololang.truffle.ExpressionNode;
-import gololang.truffle.Function;
-import gololang.truffle.NotYetImplemented;
-
-public abstract class FunctionInvocationNode extends ExpressionNode {
+public abstract class FunctionInvocationNode extends ExpressionNode implements PreEvaluated {
 
   // TODO:?? name.replaceAll("#", "\\.")
   protected final String name;
@@ -52,6 +56,11 @@ public abstract class FunctionInvocationNode extends ExpressionNode {
   }
 
   public abstract Object executeEvaluated(VirtualFrame frame, Object[] args);
+
+  @Override
+  public final Object doEvaluated(final VirtualFrame frame, final Object[] args) {
+    return executeEvaluated(frame, args);
+  }
 
   @Override
   public Object executeGeneric(final VirtualFrame frame) {
@@ -104,16 +113,18 @@ public abstract class FunctionInvocationNode extends ExpressionNode {
     @Override
     public Object executeEvaluated(final VirtualFrame frame, final Object[] args) {
       return specialize(args).
-          executeEvaluated(frame, args);
+          doEvaluated(frame, args);
     }
 
-    private FunctionInvocationNode specialize(final Object[] args) {
+    private PreEvaluated specialize(final Object[] args) {
       Object lookupResult = lookup(args);
 
       if (lookupResult instanceof MethodHandle) {
         return replace(new MethodHandleInvokeNode(this, (MethodHandle) lookupResult));
       } else if (lookupResult instanceof Function) {
         return replace(new DirectFunctionInvokeNode(this, (Function) lookupResult));
+      } else if (lookupResult instanceof PreEvaluated) {
+        return (PreEvaluated) replace((ExpressionNode) lookupResult);
       }
       throw new NotYetImplemented();
     }
@@ -218,6 +229,18 @@ public abstract class FunctionInvocationNode extends ExpressionNode {
             importClass = Class.forName(importClassName + "." + classAndMethod[0], true, getClass().getClassLoader());
           }
           String lookup = (classAndMethod == null) ? name : classAndMethod[1];
+
+          if (importClass == Predefined.class) {
+            switch (lookup) {
+              case "intValue":
+                return IntValueNodeGen.create(argumentsNode.getArgumentNodes()[0]);
+              case "doubleValue":
+                return DoubleValueNodeGen.create(argumentsNode.getArgumentNodes()[0]);
+              case "println":
+                return PrintlnNodeGen.create(argumentsNode.getArgumentNodes()[0]);
+            }
+          }
+
           Object result = FunctionCallSupport.findStaticMethodOrField(importClass, lookup, args);
           if (result != null) {
             return result;
@@ -326,6 +349,8 @@ public abstract class FunctionInvocationNode extends ExpressionNode {
         }
       } else if (result instanceof GoloFunction) {
         return ((GoloFunction) result).getTruffleFunction();
+      } else if (result instanceof PreEvaluated) {
+        return result;
       } else {
         Field field = (Field) result;
         handle = caller.unreflectGetter(field).asType(type);
