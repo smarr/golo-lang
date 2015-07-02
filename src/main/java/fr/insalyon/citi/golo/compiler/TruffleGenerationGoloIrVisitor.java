@@ -17,11 +17,9 @@
 package fr.insalyon.citi.golo.compiler;
 
 import static fr.insalyon.citi.golo.compiler.JavaBytecodeUtils.loadInteger;
-import static fr.insalyon.citi.golo.runtime.OperatorType.AND;
 import static fr.insalyon.citi.golo.runtime.OperatorType.ANON_CALL;
 import static fr.insalyon.citi.golo.runtime.OperatorType.ELVIS_METHOD_CALL;
 import static fr.insalyon.citi.golo.runtime.OperatorType.METHOD_CALL;
-import static fr.insalyon.citi.golo.runtime.OperatorType.OR;
 import static org.objectweb.asm.Opcodes.AASTORE;
 import static org.objectweb.asm.Opcodes.ANEWARRAY;
 import static org.objectweb.asm.Opcodes.CHECKCAST;
@@ -81,6 +79,7 @@ import gololang.truffle.LocalArgumentReadNode;
 import gololang.truffle.LocalVariableReadNode;
 import gololang.truffle.LocalVariableWriteNodeGen;
 import gololang.truffle.NotYetImplemented;
+import gololang.truffle.UnaryNode;
 import gololang.truffle.literals.LiteralNode;
 import gololang.truffle.literals.LiteralNode.CharacterLiteralNode;
 import gololang.truffle.literals.LiteralNode.DoubleLiteralNode;
@@ -793,21 +792,8 @@ public class TruffleGenerationGoloIrVisitor {
 
   public BinaryNode visitBinaryOperation(final BinaryOperation binaryOperation) {
     OperatorType operatorType = binaryOperation.getType();
-    if (AND.equals(operatorType)) {
-      throw new NotYetImplemented();
-      // return andOperator(binaryOperation);
-    } else if (OR.equals(operatorType)) {
-      throw new NotYetImplemented();
-//      return orOperator(binaryOperation);
-    } else {
-      return genericBinaryOperator(binaryOperation, operatorType);
-    }
-  }
-
-  private BinaryNode genericBinaryOperator(
-      final BinaryOperation binaryOperation, final OperatorType operatorType) {
     if (!isMethodCall(binaryOperation)) {
-      return operatorType.createNode(
+      return (BinaryNode) operatorType.createNode(
           (ExpressionNode) binaryOperation.getLeftExpression().accept(this),
           (ExpressionNode) binaryOperation.getRightExpression().accept(this));
     } else {
@@ -816,8 +802,12 @@ public class TruffleGenerationGoloIrVisitor {
     }
   }
 
-  public ExpressionNode visitUnaryOperation(final UnaryOperation unaryOperation) {
-    throw new NotYetImplemented();
+  public UnaryNode visitUnaryOperation(final UnaryOperation unaryOperation) {
+    OperatorType operatorType = unaryOperation.getType();
+    return (UnaryNode) operatorType.createNode(
+        (ExpressionNode) unaryOperation.getExpressionStatement().accept(this), null);
+
+    // TODO: is this sufficient
 //    String name = unaryOperation.getType().name().toLowerCase();
 //    unaryOperation.getExpressionStatement().accept(this);
 //    methodVisitor.visitInvokeDynamicInsn(name, goloFunctionSignature(1), OPERATOR_HANDLE, (Integer) 1);
