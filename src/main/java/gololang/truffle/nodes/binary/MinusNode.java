@@ -1,4 +1,6 @@
-package gololang.truffle;
+package gololang.truffle.nodes.binary;
+
+import gololang.truffle.BinaryNode;
 
 import com.oracle.truffle.api.dsl.Specialization;
 
