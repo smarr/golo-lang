@@ -16,13 +16,18 @@
 
 package fr.insalyon.citi.golo.runtime;
 
-import java.lang.invoke.*;
-import java.util.HashSet;
-import java.util.Set;
-
 import static java.lang.invoke.MethodHandles.guardWithTest;
 import static java.lang.invoke.MethodHandles.insertArguments;
 import static java.lang.invoke.MethodType.methodType;
+
+import java.lang.invoke.CallSite;
+import java.lang.invoke.ConstantCallSite;
+import java.lang.invoke.MethodHandle;
+import java.lang.invoke.MethodHandles;
+import java.lang.invoke.MethodType;
+import java.lang.invoke.MutableCallSite;
+import java.util.HashSet;
+import java.util.Set;
 
 public class OperatorSupport {
 
@@ -32,7 +37,7 @@ public class OperatorSupport {
     final String name;
     MethodHandle fallback;
 
-    MonomorphicInlineCache(MethodHandles.Lookup callerLookup, String name, MethodType type) {
+    MonomorphicInlineCache(final MethodHandles.Lookup callerLookup, final String name, final MethodType type) {
       super(type);
       this.callerLookup = callerLookup;
       this.name = name;
@@ -91,18 +96,18 @@ public class OperatorSupport {
     }
   }
 
-  public static boolean guard_1(Class<?> expected, Object arg) {
+  public static boolean guard_1(final Class<?> expected, final Object arg) {
     Class<?> t = (arg == null) ? Object.class : arg.getClass();
     return (t == expected);
   }
 
-  public static boolean guard_2(Class<?> expected1, Class<?> expected2, Object arg1, Object arg2) {
+  public static boolean guard_2(final Class<?> expected1, final Class<?> expected2, final Object arg1, final Object arg2) {
     Class<?> t1 = (arg1 == null) ? Object.class : arg1.getClass();
     Class<?> t2 = (arg2 == null) ? Object.class : arg2.getClass();
     return (t1 == expected1) && (t2 == expected2);
   }
 
-  public static Object fallback_1(MonomorphicInlineCache inlineCache, Object[] args) throws Throwable {
+  public static Object fallback_1(final MonomorphicInlineCache inlineCache, final Object[] args) throws Throwable {
 
     Class<?> argClass = (args[0] == null) ? Object.class : args[0].getClass();
     MethodHandle target;
@@ -127,7 +132,7 @@ public class OperatorSupport {
     return target.invokeWithArguments(args);
   }
 
-  public static Object fallback_2(MonomorphicInlineCache inlineCache, Object[] args) throws Throwable {
+  public static Object fallback_2(final MonomorphicInlineCache inlineCache, final Object[] args) throws Throwable {
 
     Class<?> arg1Class = (args[0] == null) ? Object.class : args[0].getClass();
     Class<?> arg2Class = (args[1] == null) ? Object.class : args[1].getClass();
@@ -153,7 +158,7 @@ public class OperatorSupport {
     return target.invokeWithArguments(args);
   }
 
-  public static CallSite bootstrap(MethodHandles.Lookup caller, String name, MethodType type, int arity) throws NoSuchMethodException, IllegalAccessException {
+  public static CallSite bootstrap(final MethodHandles.Lookup caller, final String name, final MethodType type, final int arity) throws NoSuchMethodException, IllegalAccessException {
 
     if (NO_GUARD_OPERATORS.contains(name)) {
       MethodHandle target = caller.findStatic(OperatorSupport.class, name + "_noguard",
@@ -179,520 +184,520 @@ public class OperatorSupport {
 
   // arithmetic (generated, use generate_math.rb) ......................................................................
 
-  public static Object plus(Character a, Character b) {
+  public static Object plus(final Character a, final Character b) {
     return a + b;
   }
 
-  public static Object minus(Character a, Character b) {
+  public static Object minus(final Character a, final Character b) {
     return a - b;
   }
 
-  public static Object divide(Character a, Character b) {
+  public static Object divide(final Character a, final Character b) {
     return a / b;
   }
 
-  public static Object times(Character a, Character b) {
+  public static Object times(final Character a, final Character b) {
     return a * b;
   }
 
-  public static Object modulo(Character a, Character b) {
+  public static Object modulo(final Character a, final Character b) {
     return a % b;
   }
 
-  public static Object plus(Integer a, Integer b) {
+  public static Object plus(final Integer a, final Integer b) {
     return a + b;
   }
 
-  public static Object minus(Integer a, Integer b) {
+  public static Object minus(final Integer a, final Integer b) {
     return a - b;
   }
 
-  public static Object divide(Integer a, Integer b) {
+  public static Object divide(final Integer a, final Integer b) {
     return a / b;
   }
 
-  public static Object times(Integer a, Integer b) {
+  public static Object times(final Integer a, final Integer b) {
     return a * b;
   }
 
-  public static Object modulo(Integer a, Integer b) {
+  public static Object modulo(final Integer a, final Integer b) {
     return a % b;
   }
 
-  public static Object plus(Long a, Long b) {
+  public static Object plus(final Long a, final Long b) {
     return a + b;
   }
 
-  public static Object minus(Long a, Long b) {
+  public static Object minus(final Long a, final Long b) {
     return a - b;
   }
 
-  public static Object divide(Long a, Long b) {
+  public static Object divide(final Long a, final Long b) {
     return a / b;
   }
 
-  public static Object times(Long a, Long b) {
+  public static Object times(final Long a, final Long b) {
     return a * b;
   }
 
-  public static Object modulo(Long a, Long b) {
+  public static Object modulo(final Long a, final Long b) {
     return a % b;
   }
 
-  public static Object plus(Double a, Double b) {
+  public static Object plus(final Double a, final Double b) {
     return a + b;
   }
 
-  public static Object minus(Double a, Double b) {
+  public static Object minus(final Double a, final Double b) {
     return a - b;
   }
 
-  public static Object divide(Double a, Double b) {
+  public static Object divide(final Double a, final Double b) {
     return a / b;
   }
 
-  public static Object times(Double a, Double b) {
+  public static Object times(final Double a, final Double b) {
     return a * b;
   }
 
-  public static Object modulo(Double a, Double b) {
+  public static Object modulo(final Double a, final Double b) {
     return a % b;
   }
 
-  public static Object plus(Float a, Float b) {
+  public static Object plus(final Float a, final Float b) {
     return a + b;
   }
 
-  public static Object minus(Float a, Float b) {
+  public static Object minus(final Float a, final Float b) {
     return a - b;
   }
 
-  public static Object divide(Float a, Float b) {
+  public static Object divide(final Float a, final Float b) {
     return a / b;
   }
 
-  public static Object times(Float a, Float b) {
+  public static Object times(final Float a, final Float b) {
     return a * b;
   }
 
-  public static Object modulo(Float a, Float b) {
+  public static Object modulo(final Float a, final Float b) {
     return a % b;
   }
 
-  public static Object plus(Character a, Integer b) {
+  public static Object plus(final Character a, final Integer b) {
     return ((int) a) + b;
   }
 
-  public static Object minus(Character a, Integer b) {
+  public static Object minus(final Character a, final Integer b) {
     return ((int) a) - b;
   }
 
-  public static Object divide(Character a, Integer b) {
+  public static Object divide(final Character a, final Integer b) {
     return ((int) a) / b;
   }
 
-  public static Object times(Character a, Integer b) {
+  public static Object times(final Character a, final Integer b) {
     return ((int) a) * b;
   }
 
-  public static Object modulo(Character a, Integer b) {
+  public static Object modulo(final Character a, final Integer b) {
     return ((int) a) % b;
   }
 
-  public static Object plus(Character a, Long b) {
+  public static Object plus(final Character a, final Long b) {
     return ((long) a) + b;
   }
 
-  public static Object minus(Character a, Long b) {
+  public static Object minus(final Character a, final Long b) {
     return ((long) a) - b;
   }
 
-  public static Object divide(Character a, Long b) {
+  public static Object divide(final Character a, final Long b) {
     return ((long) a) / b;
   }
 
-  public static Object times(Character a, Long b) {
+  public static Object times(final Character a, final Long b) {
     return ((long) a) * b;
   }
 
-  public static Object modulo(Character a, Long b) {
+  public static Object modulo(final Character a, final Long b) {
     return ((long) a) % b;
   }
 
-  public static Object plus(Character a, Double b) {
+  public static Object plus(final Character a, final Double b) {
     return ((double) a) + b;
   }
 
-  public static Object minus(Character a, Double b) {
+  public static Object minus(final Character a, final Double b) {
     return ((double) a) - b;
   }
 
-  public static Object divide(Character a, Double b) {
+  public static Object divide(final Character a, final Double b) {
     return ((double) a) / b;
   }
 
-  public static Object times(Character a, Double b) {
+  public static Object times(final Character a, final Double b) {
     return ((double) a) * b;
   }
 
-  public static Object modulo(Character a, Double b) {
+  public static Object modulo(final Character a, final Double b) {
     return ((double) a) % b;
   }
 
-  public static Object plus(Character a, Float b) {
+  public static Object plus(final Character a, final Float b) {
     return ((float) a) + b;
   }
 
-  public static Object minus(Character a, Float b) {
+  public static Object minus(final Character a, final Float b) {
     return ((float) a) - b;
   }
 
-  public static Object divide(Character a, Float b) {
+  public static Object divide(final Character a, final Float b) {
     return ((float) a) / b;
   }
 
-  public static Object times(Character a, Float b) {
+  public static Object times(final Character a, final Float b) {
     return ((float) a) * b;
   }
 
-  public static Object modulo(Character a, Float b) {
+  public static Object modulo(final Character a, final Float b) {
     return ((float) a) % b;
   }
 
-  public static Object plus(Integer a, Long b) {
+  public static Object plus(final Integer a, final Long b) {
     return ((long) a) + b;
   }
 
-  public static Object minus(Integer a, Long b) {
+  public static Object minus(final Integer a, final Long b) {
     return ((long) a) - b;
   }
 
-  public static Object divide(Integer a, Long b) {
+  public static Object divide(final Integer a, final Long b) {
     return ((long) a) / b;
   }
 
-  public static Object times(Integer a, Long b) {
+  public static Object times(final Integer a, final Long b) {
     return ((long) a) * b;
   }
 
-  public static Object modulo(Integer a, Long b) {
+  public static Object modulo(final Integer a, final Long b) {
     return ((long) a) % b;
   }
 
-  public static Object plus(Integer a, Double b) {
+  public static Object plus(final Integer a, final Double b) {
     return ((double) a) + b;
   }
 
-  public static Object minus(Integer a, Double b) {
+  public static Object minus(final Integer a, final Double b) {
     return ((double) a) - b;
   }
 
-  public static Object divide(Integer a, Double b) {
+  public static Object divide(final Integer a, final Double b) {
     return ((double) a) / b;
   }
 
-  public static Object times(Integer a, Double b) {
+  public static Object times(final Integer a, final Double b) {
     return ((double) a) * b;
   }
 
-  public static Object modulo(Integer a, Double b) {
+  public static Object modulo(final Integer a, final Double b) {
     return ((double) a) % b;
   }
 
-  public static Object plus(Integer a, Float b) {
+  public static Object plus(final Integer a, final Float b) {
     return ((float) a) + b;
   }
 
-  public static Object minus(Integer a, Float b) {
+  public static Object minus(final Integer a, final Float b) {
     return ((float) a) - b;
   }
 
-  public static Object divide(Integer a, Float b) {
+  public static Object divide(final Integer a, final Float b) {
     return ((float) a) / b;
   }
 
-  public static Object times(Integer a, Float b) {
+  public static Object times(final Integer a, final Float b) {
     return ((float) a) * b;
   }
 
-  public static Object modulo(Integer a, Float b) {
+  public static Object modulo(final Integer a, final Float b) {
     return ((float) a) % b;
   }
 
-  public static Object plus(Long a, Double b) {
+  public static Object plus(final Long a, final Double b) {
     return ((double) a) + b;
   }
 
-  public static Object minus(Long a, Double b) {
+  public static Object minus(final Long a, final Double b) {
     return ((double) a) - b;
   }
 
-  public static Object divide(Long a, Double b) {
+  public static Object divide(final Long a, final Double b) {
     return ((double) a) / b;
   }
 
-  public static Object times(Long a, Double b) {
+  public static Object times(final Long a, final Double b) {
     return ((double) a) * b;
   }
 
-  public static Object modulo(Long a, Double b) {
+  public static Object modulo(final Long a, final Double b) {
     return ((double) a) % b;
   }
 
-  public static Object plus(Long a, Float b) {
+  public static Object plus(final Long a, final Float b) {
     return ((float) a) + b;
   }
 
-  public static Object minus(Long a, Float b) {
+  public static Object minus(final Long a, final Float b) {
     return ((float) a) - b;
   }
 
-  public static Object divide(Long a, Float b) {
+  public static Object divide(final Long a, final Float b) {
     return ((float) a) / b;
   }
 
-  public static Object times(Long a, Float b) {
+  public static Object times(final Long a, final Float b) {
     return ((float) a) * b;
   }
 
-  public static Object modulo(Long a, Float b) {
+  public static Object modulo(final Long a, final Float b) {
     return ((float) a) % b;
   }
 
-  public static Object plus(Double a, Float b) {
+  public static Object plus(final Double a, final Float b) {
     return a + ((double) b);
   }
 
-  public static Object minus(Double a, Float b) {
+  public static Object minus(final Double a, final Float b) {
     return a - ((double) b);
   }
 
-  public static Object divide(Double a, Float b) {
+  public static Object divide(final Double a, final Float b) {
     return a / ((double) b);
   }
 
-  public static Object times(Double a, Float b) {
+  public static Object times(final Double a, final Float b) {
     return a * ((double) b);
   }
 
-  public static Object modulo(Double a, Float b) {
+  public static Object modulo(final Double a, final Float b) {
     return a % ((double) b);
   }
 
-  public static Object plus(Integer a, Character b) {
+  public static Object plus(final Integer a, final Character b) {
     return a + ((int) b);
   }
 
-  public static Object minus(Integer a, Character b) {
+  public static Object minus(final Integer a, final Character b) {
     return a - ((int) b);
   }
 
-  public static Object divide(Integer a, Character b) {
+  public static Object divide(final Integer a, final Character b) {
     return a / ((int) b);
   }
 
-  public static Object times(Integer a, Character b) {
+  public static Object times(final Integer a, final Character b) {
     return a * ((int) b);
   }
 
-  public static Object modulo(Integer a, Character b) {
+  public static Object modulo(final Integer a, final Character b) {
     return a % ((int) b);
   }
 
-  public static Object plus(Long a, Character b) {
+  public static Object plus(final Long a, final Character b) {
     return a + ((long) b);
   }
 
-  public static Object minus(Long a, Character b) {
+  public static Object minus(final Long a, final Character b) {
     return a - ((long) b);
   }
 
-  public static Object divide(Long a, Character b) {
+  public static Object divide(final Long a, final Character b) {
     return a / ((long) b);
   }
 
-  public static Object times(Long a, Character b) {
+  public static Object times(final Long a, final Character b) {
     return a * ((long) b);
   }
 
-  public static Object modulo(Long a, Character b) {
+  public static Object modulo(final Long a, final Character b) {
     return a % ((long) b);
   }
 
-  public static Object plus(Double a, Character b) {
+  public static Object plus(final Double a, final Character b) {
     return a + ((double) b);
   }
 
-  public static Object minus(Double a, Character b) {
+  public static Object minus(final Double a, final Character b) {
     return a - ((double) b);
   }
 
-  public static Object divide(Double a, Character b) {
+  public static Object divide(final Double a, final Character b) {
     return a / ((double) b);
   }
 
-  public static Object times(Double a, Character b) {
+  public static Object times(final Double a, final Character b) {
     return a * ((double) b);
   }
 
-  public static Object modulo(Double a, Character b) {
+  public static Object modulo(final Double a, final Character b) {
     return a % ((double) b);
   }
 
-  public static Object plus(Float a, Character b) {
+  public static Object plus(final Float a, final Character b) {
     return a + ((float) b);
   }
 
-  public static Object minus(Float a, Character b) {
+  public static Object minus(final Float a, final Character b) {
     return a - ((float) b);
   }
 
-  public static Object divide(Float a, Character b) {
+  public static Object divide(final Float a, final Character b) {
     return a / ((float) b);
   }
 
-  public static Object times(Float a, Character b) {
+  public static Object times(final Float a, final Character b) {
     return a * ((float) b);
   }
 
-  public static Object modulo(Float a, Character b) {
+  public static Object modulo(final Float a, final Character b) {
     return a % ((float) b);
   }
 
-  public static Object plus(Long a, Integer b) {
+  public static Object plus(final Long a, final Integer b) {
     return a + ((long) b);
   }
 
-  public static Object minus(Long a, Integer b) {
+  public static Object minus(final Long a, final Integer b) {
     return a - ((long) b);
   }
 
-  public static Object divide(Long a, Integer b) {
+  public static Object divide(final Long a, final Integer b) {
     return a / ((long) b);
   }
 
-  public static Object times(Long a, Integer b) {
+  public static Object times(final Long a, final Integer b) {
     return a * ((long) b);
   }
 
-  public static Object modulo(Long a, Integer b) {
+  public static Object modulo(final Long a, final Integer b) {
     return a % ((long) b);
   }
 
-  public static Object plus(Double a, Integer b) {
+  public static Object plus(final Double a, final Integer b) {
     return a + ((double) b);
   }
 
-  public static Object minus(Double a, Integer b) {
+  public static Object minus(final Double a, final Integer b) {
     return a - ((double) b);
   }
 
-  public static Object divide(Double a, Integer b) {
+  public static Object divide(final Double a, final Integer b) {
     return a / ((double) b);
   }
 
-  public static Object times(Double a, Integer b) {
+  public static Object times(final Double a, final Integer b) {
     return a * ((double) b);
   }
 
-  public static Object modulo(Double a, Integer b) {
+  public static Object modulo(final Double a, final Integer b) {
     return a % ((double) b);
   }
 
-  public static Object plus(Float a, Integer b) {
+  public static Object plus(final Float a, final Integer b) {
     return a + ((float) b);
   }
 
-  public static Object minus(Float a, Integer b) {
+  public static Object minus(final Float a, final Integer b) {
     return a - ((float) b);
   }
 
-  public static Object divide(Float a, Integer b) {
+  public static Object divide(final Float a, final Integer b) {
     return a / ((float) b);
   }
 
-  public static Object times(Float a, Integer b) {
+  public static Object times(final Float a, final Integer b) {
     return a * ((float) b);
   }
 
-  public static Object modulo(Float a, Integer b) {
+  public static Object modulo(final Float a, final Integer b) {
     return a % ((float) b);
   }
 
-  public static Object plus(Double a, Long b) {
+  public static Object plus(final Double a, final Long b) {
     return a + ((double) b);
   }
 
-  public static Object minus(Double a, Long b) {
+  public static Object minus(final Double a, final Long b) {
     return a - ((double) b);
   }
 
-  public static Object divide(Double a, Long b) {
+  public static Object divide(final Double a, final Long b) {
     return a / ((double) b);
   }
 
-  public static Object times(Double a, Long b) {
+  public static Object times(final Double a, final Long b) {
     return a * ((double) b);
   }
 
-  public static Object modulo(Double a, Long b) {
+  public static Object modulo(final Double a, final Long b) {
     return a % ((double) b);
   }
 
-  public static Object plus(Float a, Long b) {
+  public static Object plus(final Float a, final Long b) {
     return a + ((float) b);
   }
 
-  public static Object minus(Float a, Long b) {
+  public static Object minus(final Float a, final Long b) {
     return a - ((float) b);
   }
 
-  public static Object divide(Float a, Long b) {
+  public static Object divide(final Float a, final Long b) {
     return a / ((float) b);
   }
 
-  public static Object times(Float a, Long b) {
+  public static Object times(final Float a, final Long b) {
     return a * ((float) b);
   }
 
-  public static Object modulo(Float a, Long b) {
+  public static Object modulo(final Float a, final Long b) {
     return a % ((float) b);
   }
 
-  public static Object plus(Float a, Double b) {
+  public static Object plus(final Float a, final Double b) {
     return ((double) a) + b;
   }
 
-  public static Object minus(Float a, Double b) {
+  public static Object minus(final Float a, final Double b) {
     return ((double) a) - b;
   }
 
-  public static Object divide(Float a, Double b) {
+  public static Object divide(final Float a, final Double b) {
     return ((double) a) / b;
   }
 
-  public static Object times(Float a, Double b) {
+  public static Object times(final Float a, final Double b) {
     return ((double) a) * b;
   }
 
-  public static Object modulo(Float a, Double b) {
+  public static Object modulo(final Float a, final Double b) {
     return ((double) a) % b;
   }
 
   // arithmetic fallbacks .............................................................................................
 
-  public static Object plus(String a, String b) {
+  public static Object plus(final String a, final String b) {
     return a + b;
   }
 
-  public static Object plus_fallback(Object a, Object b) {
+  public static Object plus_fallback(final Object a, final Object b) {
     if (isNotNullAndString(a) || isNotNullAndString(b)) {
       return String.valueOf(a) + b;
     }
     return reject(a, b, "plus");
   }
 
-  public static Object times_fallback(Object a, Object b) {
+  public static Object times_fallback(final Object a, final Object b) {
     if (isInteger(a) && isString(b)) {
       return repeat((String) b, (Integer) a);
     }
@@ -702,7 +707,7 @@ public class OperatorSupport {
     return reject(a, b, "times");
   }
 
-  private static String repeat(String string, int n) {
+  private static String repeat(final String string, final int n) {
     StringBuilder builder = new StringBuilder(string);
     for (int i = 1; i < n; i++) {
       builder.append(string);
@@ -712,16 +717,16 @@ public class OperatorSupport {
 
   // comparisons ......................................................................................................
 
-  public static Object equals_noguard(Object a, Object b) {
+  public static Object equals_noguard(final Object a, final Object b) {
     return (a == b) || ((a != null) && a.equals(b));
   }
 
-  public static Object notequals_noguard(Object a, Object b) {
+  public static Object notequals_noguard(final Object a, final Object b) {
     return (a != b) && (((a != null) && !a.equals(b)) || ((b != null) && !b.equals(a)));
   }
 
   @SuppressWarnings("unchecked")
-  public static Object less_noguard(Object a, Object b) {
+  public static Object less_noguard(final Object a, final Object b) {
     if (bothNotNull(a, b) && isComparable(a) && isComparable(b)) {
       return ((Comparable) a).compareTo(b) < 0;
     }
@@ -729,7 +734,7 @@ public class OperatorSupport {
   }
 
   @SuppressWarnings("unchecked")
-  public static Object lessorequals_noguard(Object a, Object b) {
+  public static Object lessorequals_noguard(final Object a, final Object b) {
     if (bothNotNull(a, b) && isComparable(a) && isComparable(b)) {
       return ((Comparable) a).compareTo(b) <= 0;
     }
@@ -737,7 +742,7 @@ public class OperatorSupport {
   }
 
   @SuppressWarnings("unchecked")
-  public static Object more_noguard(Object a, Object b) {
+  public static Object more_noguard(final Object a, final Object b) {
     if (bothNotNull(a, b) && isComparable(a) && isComparable(b)) {
       return ((Comparable) a).compareTo(b) > 0;
     }
@@ -745,7 +750,7 @@ public class OperatorSupport {
   }
 
   @SuppressWarnings("unchecked")
-  public static Object moreorequals_noguard(Object a, Object b) {
+  public static Object moreorequals_noguard(final Object a, final Object b) {
     if (bothNotNull(a, b) && isComparable(a) && isComparable(b)) {
       return ((Comparable) a).compareTo(b) >= 0;
     }
@@ -754,60 +759,60 @@ public class OperatorSupport {
 
   // logic ............................................................................................................
 
-  public static Object not(Boolean a) {
+  public static Object not(final Boolean a) {
     return !a;
   }
 
-  public static Object oftype_noguard(Object a, Object b) {
+  public static Object oftype_noguard(final Object a, final Object b) {
     if (isClass(b)) {
       return ((Class<?>) b).isInstance(a);
     }
     return reject(a, b, "oftype");
   }
 
-  public static Object is_noguard(Object a, Object b) {
+  public static Object is_noguard(final Object a, final Object b) {
     return a == b;
   }
 
-  public static Object isnt_noguard(Object a, Object b) {
+  public static Object isnt_noguard(final Object a, final Object b) {
     return a != b;
   }
 
-  public static Object orifnull_noguard(Object a, Object b) {
+  public static Object orifnull_noguard(final Object a, final Object b) {
     return (a != null) ? a : b;
   }
 
   // helpers ..........................................................................................................
 
-  private static boolean isNotNullAndString(Object obj) {
+  private static boolean isNotNullAndString(final Object obj) {
     return (obj != null) && (obj.getClass() == String.class);
   }
 
-  private static boolean bothNotNull(Object a, Object b) {
+  private static boolean bothNotNull(final Object a, final Object b) {
     return (a != null) && (b != null);
   }
 
-  private static boolean isString(Object obj) {
+  private static boolean isString(final Object obj) {
     return obj.getClass() == String.class;
   }
 
-  private static boolean isInteger(Object obj) {
+  private static boolean isInteger(final Object obj) {
     return obj.getClass() == Integer.class;
   }
 
-  private static boolean isComparable(Object obj) {
+  private static boolean isComparable(final Object obj) {
     return obj instanceof Comparable<?>;
   }
 
-  private static boolean isClass(Object obj) {
+  private static boolean isClass(final Object obj) {
     return (obj != null) && (obj.getClass() == Class.class);
   }
 
-  private static Object reject(Object a, String symbol) throws IllegalArgumentException {
+  private static Object reject(final Object a, final String symbol) throws IllegalArgumentException {
     throw new IllegalArgumentException(String.format("Operator %s is not supported for type %s", symbol, a.getClass()));
   }
 
-  private static Object reject(Object a, Object b, String symbol) throws IllegalArgumentException {
+  private static Object reject(final Object a, final Object b, final String symbol) throws IllegalArgumentException {
     throw new IllegalArgumentException(String.format("Operator %s is not supported for types %s and %s", symbol, a.getClass(), b.getClass()));
   }
 }
