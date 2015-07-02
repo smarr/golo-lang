@@ -11,4 +11,9 @@ public abstract class LessThanNode extends BinaryNode {
   public boolean doLongs(final long left, final long right) {
     return left < right;
   }
+
+  @Specialization
+  public boolean doIntegers(final int left, final int right) {
+    return left < right;
+  }
 }

@@ -12,4 +12,13 @@ public abstract class MinusNode extends BinaryNode {
     return left - right;
   }
 
+  @Specialization
+  public double doDoubles(final double left, final double right) {
+    return left - right;
+  }
+
+  @Specialization
+  public int doIntegers(final int left, final int right) {
+    return left - right;
+  }
 }
