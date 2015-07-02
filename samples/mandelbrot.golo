@@ -63,7 +63,7 @@ function mandelbrot = |size| {
 
       var z = 0
       while (z < 50) {
-        var tr = zrzr - zizi + cr
+        var tr = (zrzr - zizi) + cr
         var ti = (2.0 * zr * zi) + ci
 
         zr = tr
@@ -97,7 +97,7 @@ function mandelbrot = |size| {
       }
       x = x + 1
     }
-    y = y + 1    
+    y = y + 1
   }
 
   return sum
