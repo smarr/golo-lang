@@ -18,8 +18,14 @@ package fr.insalyon.citi.golo.runtime;
 
 import gololang.truffle.BinaryNode;
 import gololang.truffle.ExpressionNode;
+import gololang.truffle.NotNodeGen;
 import gololang.truffle.NotYetImplemented;
+import gololang.truffle.UnaryNode;
+import gololang.truffle.nodes.binary.BitLeftShiftNodeGen;
+import gololang.truffle.nodes.binary.BitOrNodeGen;
+import gololang.truffle.nodes.binary.BitXorNodeGen;
 import gololang.truffle.nodes.binary.DivideNodeGen;
+import gololang.truffle.nodes.binary.EqualNodeGen;
 import gololang.truffle.nodes.binary.GreaterThanNodeGen;
 import gololang.truffle.nodes.binary.LessThanNodeGen;
 import gololang.truffle.nodes.binary.MinusNodeGen;
@@ -64,26 +70,26 @@ public enum OperatorType {
   BIT_OR("bitOR") {
     @Override
     public BinaryNode createNode(final ExpressionNode left, final ExpressionNode right) {
-      throw new NotYetImplemented();
+      return BitOrNodeGen.create(left, right);
     }
   },
   BIT_XOR("bitXOR") {
     @Override
     public BinaryNode createNode(final ExpressionNode left, final ExpressionNode right) {
-      throw new NotYetImplemented();
+      return BitXorNodeGen.create(left, right);
     }
   },
   BIT_LSHIFT("bitLSHIFT") {
     @Override
     public BinaryNode createNode(final ExpressionNode left, final ExpressionNode right) {
-      throw new NotYetImplemented();
+      return BitLeftShiftNodeGen.create(left, right);
     }
   },
 
   EQUALS("==") {
     @Override
     public BinaryNode createNode(final ExpressionNode left, final ExpressionNode right) {
-      throw new NotYetImplemented();
+      return EqualNodeGen.create(left, right);
     }
   },
   NOTEQUALS("!=") {
@@ -131,8 +137,8 @@ public enum OperatorType {
   },
   NOT("not") {
     @Override
-    public BinaryNode createNode(final ExpressionNode left, final ExpressionNode right) {
-      throw new NotYetImplemented();
+    public UnaryNode createNode(final ExpressionNode left, final ExpressionNode right) {
+      return NotNodeGen.create(left);
     }
   },
 
@@ -193,5 +199,5 @@ public enum OperatorType {
     return symbol;
   }
 
-  public abstract BinaryNode createNode(ExpressionNode left, ExpressionNode right);
+  public abstract ExpressionNode createNode(ExpressionNode left, ExpressionNode right);
 }
