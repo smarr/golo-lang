@@ -31,6 +31,7 @@ import fr.insalyon.citi.golo.compiler.parser.ASTAnonymousFunctionInvocation;
 import fr.insalyon.citi.golo.compiler.parser.ASTArgument;
 import fr.insalyon.citi.golo.compiler.parser.ASTAssignment;
 import fr.insalyon.citi.golo.compiler.parser.ASTAugmentDeclaration;
+import fr.insalyon.citi.golo.compiler.parser.ASTBitExpression;
 import fr.insalyon.citi.golo.compiler.parser.ASTBlock;
 import fr.insalyon.citi.golo.compiler.parser.ASTBreak;
 import fr.insalyon.citi.golo.compiler.parser.ASTCase;
@@ -350,6 +351,11 @@ class ModuleDocumentation implements DocumentationElement {
 
     @Override
     public Object visit(final ASTInvocationExpression node, final Object data) { return data; }
+
+    @Override
+    public Object visit(final ASTBitExpression node, final Object data) {
+      return data;
+    }
 
     @Override
     public Object visit(final ASTMultiplicativeExpression node, final Object data) {

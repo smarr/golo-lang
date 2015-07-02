@@ -59,6 +59,25 @@ public enum OperatorType {
     }
   },
 
+  BIT_OR("bitOR") {
+    @Override
+    public BinaryNode createNode(final ExpressionNode left, final ExpressionNode right) {
+      throw new NotYetImplemented();
+    }
+  },
+  BIT_XOR("bitXOR") {
+    @Override
+    public BinaryNode createNode(final ExpressionNode left, final ExpressionNode right) {
+      throw new NotYetImplemented();
+    }
+  },
+  BIT_LSHIFT("bitLSHIFT") {
+    @Override
+    public BinaryNode createNode(final ExpressionNode left, final ExpressionNode right) {
+      throw new NotYetImplemented();
+    }
+  },
+
   EQUALS("==") {
     @Override
     public BinaryNode createNode(final ExpressionNode left, final ExpressionNode right) {

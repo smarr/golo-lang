@@ -70,6 +70,7 @@ import fr.insalyon.citi.golo.compiler.parser.ASTAnonymousFunctionInvocation;
 import fr.insalyon.citi.golo.compiler.parser.ASTArgument;
 import fr.insalyon.citi.golo.compiler.parser.ASTAssignment;
 import fr.insalyon.citi.golo.compiler.parser.ASTAugmentDeclaration;
+import fr.insalyon.citi.golo.compiler.parser.ASTBitExpression;
 import fr.insalyon.citi.golo.compiler.parser.ASTBlock;
 import fr.insalyon.citi.golo.compiler.parser.ASTBreak;
 import fr.insalyon.citi.golo.compiler.parser.ASTCase;
@@ -484,6 +485,12 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
         return OperatorType.DIVIDE;
       case "%":
         return OperatorType.MODULO;
+      case "bitXOR":
+        return OperatorType.BIT_XOR;
+      case "bitOR":
+        return OperatorType.BIT_OR;
+      case "bitLSHIFT":
+        return OperatorType.BIT_LSHIFT;
       case "<":
         return OperatorType.LESS;
       case "<=":
@@ -1042,6 +1049,27 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
       }
       left = (ExpressionStatement) context.objectStack.pop();
       right = current = new BinaryOperation(operator, left, right);
+    }
+    context.objectStack.push(current);
+    node.setIrElement(current);
+    return data;
+  }
+
+  @Override
+  public Object visit(final ASTBitExpression node, final Object data) {
+    Context context = (Context) data;
+    node.childrenAccept(this, context);
+    BinaryOperation current = null;
+    ExpressionStatement left;
+    ExpressionStatement right = null;
+    List<String> symbols = node.getOperators();
+    Collections.reverse(symbols);
+    for (String symbol : symbols) {
+      if (right == null) {
+        right = (ExpressionStatement) context.objectStack.pop();
+      }
+      left = (ExpressionStatement) context.objectStack.pop();
+      right = current = new BinaryOperation(operationFrom(symbol), left, right);
     }
     context.objectStack.push(current);
     node.setIrElement(current);

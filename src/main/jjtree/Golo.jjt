@@ -181,6 +181,8 @@ TOKEN :
   |
   < ADDITIVE_OPERATOR: ("+" | "-") >
   |
+  < BIT_OPERATOR: ("bitOR" | "bitLSHIFT" | "bitXOR") >
+  |
   < RELATIONAL_OPERATOR: ("<" | "<=" | ">" | ">=" | "oftype") >
   |
   < EQUALITY_OPERATOR: ("==" | "!=" | "is" | "isnt") >
@@ -1072,14 +1074,28 @@ void InvocationExpression() #void:
   )*
 }
 
-void MultiplicativeExpression() #void:
+void BitExpression() #void:
 {
   Token token = null;
 }
 {
   UnaryExpression()
   (
-    LOOKAHEAD(2) (BlankLine())? token=<MULTIPLICATIVE_OPERATOR> (BlankLine())? InvocationExpression()
+    LOOKAHEAD(2) (BlankLine())? token=<BIT_OPERATOR> (BlankLine())? InvocationExpression()
+    {
+      jjtThis.addOperator(token.image);
+    }
+  )* #BitExpression(token != null)
+}
+
+void MultiplicativeExpression() #void:
+{
+  Token token = null;
+}
+{
+  BitExpression()
+  (
+    LOOKAHEAD(2) (BlankLine())? token=<MULTIPLICATIVE_OPERATOR> (BlankLine())? BitExpression()
     {
       jjtThis.addOperator(token.image);
     }
