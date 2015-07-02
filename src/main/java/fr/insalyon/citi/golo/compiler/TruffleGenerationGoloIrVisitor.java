@@ -81,7 +81,6 @@ import gololang.truffle.LocalArgumentReadNode;
 import gololang.truffle.LocalVariableReadNode;
 import gololang.truffle.LocalVariableWriteNodeGen;
 import gololang.truffle.NotYetImplemented;
-import gololang.truffle.ThrowNodeGen;
 import gololang.truffle.literals.LiteralNode;
 import gololang.truffle.literals.LiteralNode.CharacterLiteralNode;
 import gololang.truffle.literals.LiteralNode.DoubleLiteralNode;
@@ -98,6 +97,7 @@ import gololang.truffle.nodes.conrolflow.IfNode;
 import gololang.truffle.nodes.conrolflow.ReturnNode;
 import gololang.truffle.nodes.conrolflow.SequenceNode;
 import gololang.truffle.nodes.conrolflow.ThrowNode;
+import gololang.truffle.nodes.conrolflow.ThrowNodeGen;
 
 public class TruffleGenerationGoloIrVisitor {
 

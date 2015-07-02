@@ -17,15 +17,16 @@
 package fr.insalyon.citi.golo.runtime;
 
 import gololang.truffle.BinaryNode;
-import gololang.truffle.DivideNodeGen;
 import gololang.truffle.ExpressionNode;
-import gololang.truffle.GreaterThanNodeGen;
-import gololang.truffle.LessThanNodeGen;
-import gololang.truffle.MinusNodeGen;
-import gololang.truffle.NotEqualNodeGen;
 import gololang.truffle.NotYetImplemented;
-import gololang.truffle.PlusNodeGen;
-import gololang.truffle.TimesNodeGen;
+import gololang.truffle.nodes.binary.DivideNodeGen;
+import gololang.truffle.nodes.binary.GreaterThanNodeGen;
+import gololang.truffle.nodes.binary.LessThanNodeGen;
+import gololang.truffle.nodes.binary.MinusNodeGen;
+import gololang.truffle.nodes.binary.NotEqualNodeGen;
+import gololang.truffle.nodes.binary.PlusNodeGen;
+import gololang.truffle.nodes.binary.TimesNodeGen;
+
 
 public enum OperatorType {
 
