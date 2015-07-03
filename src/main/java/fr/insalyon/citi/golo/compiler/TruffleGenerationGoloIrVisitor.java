@@ -43,7 +43,6 @@ import org.objectweb.asm.MethodVisitor;
 
 import com.oracle.truffle.api.frame.FrameDescriptor;
 import com.oracle.truffle.api.frame.FrameSlot;
-import com.oracle.truffle.api.frame.FrameSlotKind;
 
 import fr.insalyon.citi.golo.compiler.ir.AbstractInvocation;
 import fr.insalyon.citi.golo.compiler.ir.AssignmentStatement;
@@ -76,7 +75,7 @@ import gololang.truffle.EvalArgumentsNode;
 import gololang.truffle.ExpressionNode;
 import gololang.truffle.Function;
 import gololang.truffle.LocalArgumentReadNode;
-import gololang.truffle.LocalVariableReadNode;
+import gololang.truffle.LocalVariableReadNodeGen;
 import gololang.truffle.LocalVariableWriteNodeGen;
 import gololang.truffle.NotYetImplemented;
 import gololang.truffle.UnaryNode;
@@ -527,7 +526,7 @@ public class TruffleGenerationGoloIrVisitor {
 
   private FrameSlot getFrameSlot(final LocalReference reference) {
     // TODO: might want to specialize this later on
-    FrameSlot slot = context.frameDescriptors.peek().findOrAddFrameSlot(reference.getName(), FrameSlotKind.Object);
+    FrameSlot slot = context.frameDescriptors.peek().findOrAddFrameSlot(reference.getName());
     return slot;
   }
 
@@ -544,7 +543,7 @@ public class TruffleGenerationGoloIrVisitor {
       return new LocalArgumentReadNode(reference.getIndex());
     } else {
       FrameSlot slot = getFrameSlot(reference);
-      return new LocalVariableReadNode(slot);
+      return LocalVariableReadNodeGen.create(slot);
     }
   }
 

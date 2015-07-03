@@ -1,11 +1,13 @@
 package gololang.truffle;
 
+import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.frame.FrameSlot;
 import com.oracle.truffle.api.frame.FrameSlotKind;
+import com.oracle.truffle.api.frame.FrameSlotTypeException;
 import com.oracle.truffle.api.frame.VirtualFrame;
 
 
-public final class LocalVariableReadNode extends ExpressionNode {
+public abstract class LocalVariableReadNode extends ExpressionNode {
 
   protected final FrameSlot slot;
 
@@ -13,10 +15,36 @@ public final class LocalVariableReadNode extends ExpressionNode {
     this.slot = slot;
   }
 
-  @Override
-  public Object executeGeneric(final VirtualFrame frame) {
-    // TODO: might need to change this here after specializing frame slot kinds
-    assert slot.getKind() == FrameSlotKind.Object;
-    return frame.getValue(slot);
+  @Specialization(guards = "isUninitialized()")
+  public Object doNull() {
+    return null;
+  }
+
+  @Specialization(guards = "isInitialized()", rewriteOn = {FrameSlotTypeException.class})
+  public boolean doBoolean(final VirtualFrame frame) throws FrameSlotTypeException {
+    return frame.getBoolean(slot);
+  }
+
+  @Specialization(guards = "isInitialized()", rewriteOn = {FrameSlotTypeException.class})
+  public long doLong(final VirtualFrame frame) throws FrameSlotTypeException {
+    return frame.getLong(slot);
+  }
+
+  @Specialization(guards = "isInitialized()", rewriteOn = {FrameSlotTypeException.class})
+  public double doDouble(final VirtualFrame frame) throws FrameSlotTypeException {
+    return frame.getDouble(slot);
+  }
+
+  @Specialization(guards = "isInitialized()", rewriteOn = {FrameSlotTypeException.class})
+  public Object doObject(final VirtualFrame frame) throws FrameSlotTypeException {
+    return frame.getObject(slot);
+  }
+
+  protected boolean isInitialized() {
+    return slot.getKind() != FrameSlotKind.Illegal;
+  }
+
+  protected boolean isUninitialized() {
+    return slot.getKind() == FrameSlotKind.Illegal;
   }
 }
