@@ -24,6 +24,10 @@ public enum OperatorType {
   MORE(">"),
   MOREOREQUALS(">="),
 
+  BIT_OR("bitOR"),
+  BIT_XOR("bitXOR"),
+  BIT_LSHIFT("bitLSHIFT"),
+
   AND("and"),
   OR("or"),
   NOT("not"),

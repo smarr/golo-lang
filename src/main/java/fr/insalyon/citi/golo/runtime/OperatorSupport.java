@@ -254,6 +254,18 @@ public class OperatorSupport {
     return ((int) a) >= ((int) b);
   }
 
+  public static Object bit_lshift(final Integer a, final Integer b) {
+    return a << b;
+  }
+
+  public static Object bit_or(final Integer a, final Integer b) {
+    return a | b;
+  }
+
+  public static Object bit_xor(final Integer a, final Integer b) {
+    return a ^ b;
+  }
+  
   public static Object plus(Long a, Long b) {
     return ((long) a) + ((long) b);
   }
