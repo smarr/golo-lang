@@ -11,9 +11,13 @@ package fr.insalyon.citi.golo.cli.command;
 
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
+import com.oracle.truffle.api.Truffle;
+
 import fr.insalyon.citi.golo.cli.command.spi.CliCommand;
 import fr.insalyon.citi.golo.compiler.GoloClassLoader;
 import fr.insalyon.citi.golo.compiler.GoloCompilationException;
+import fr.insalyon.citi.golo.compiler.GoloCompiler;
+import gololang.truffle.Function;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -35,6 +39,9 @@ public class GoloGoloCommand implements CliCommand {
 
   @Parameter(names = "--classpath", variableArity = true, description = "Classpath elements (.jar and directories)")
   List<String> classpath = new LinkedList<>();
+
+  @Parameter(names = "--truffle", description = "Uses Truffle for execution")
+  boolean truffle = false;
 
   public void execute() throws Throwable {
     URLClassLoader primaryClassLoader = primaryClassLoader(this.classpath);
@@ -69,9 +76,16 @@ public class GoloGoloCommand implements CliCommand {
       }
     } else if (file.getName().endsWith(".golo")) {
       try (FileInputStream in = new FileInputStream(file)) {
-        Class<?> loadedClass = loader.load(file.getName(), in);
-        if (module == null || loadedClass.getCanonicalName().equals(module)) {
-          return loadedClass;
+        if (truffle) {
+          GoloCompiler compiler = new GoloCompiler();
+          Function fun = compiler.compileAndGetMain(file.getName(), in);
+	      Truffle.getRuntime().createCallTarget(fun).call(new Object[] {new String[0]});
+	      System.exit(0);  // we want to exit here, is probably not totally correct, but we don't want the rest of the system to run
+        } else {
+          Class<?> loadedClass = loader.load(file.getName(), in);
+          if (module == null || loadedClass.getCanonicalName().equals(module)) {
+            return loadedClass;
+          }
         }
       } catch (GoloCompilationException e) {
         handleCompilationException(e);
