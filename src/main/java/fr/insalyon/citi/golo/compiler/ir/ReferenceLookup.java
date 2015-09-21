@@ -9,6 +9,10 @@
 
 package fr.insalyon.citi.golo.compiler.ir;
 
+import com.oracle.truffle.api.nodes.Node;
+
+import fr.insalyon.citi.golo.compiler.TruffleGenerationGoloIrVisitor;
+
 public class ReferenceLookup extends ExpressionStatement {
 
   private final String name;
@@ -29,5 +33,10 @@ public class ReferenceLookup extends ExpressionStatement {
   @Override
   public void accept(GoloIrVisitor visitor) {
     visitor.visitReferenceLookup(this);
+  }
+  
+  @Override
+  public Node accept(final TruffleGenerationGoloIrVisitor visitor) {
+    return visitor.visitReferenceLookup(this);
   }
 }

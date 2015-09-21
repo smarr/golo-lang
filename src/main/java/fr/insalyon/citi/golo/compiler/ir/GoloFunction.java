@@ -12,6 +12,9 @@ package fr.insalyon.citi.golo.compiler.ir;
 import java.util.LinkedList;
 import java.util.List;
 
+import com.oracle.truffle.api.nodes.Node;
+
+import fr.insalyon.citi.golo.compiler.TruffleGenerationGoloIrVisitor;
 import static java.util.Collections.unmodifiableList;
 
 public final class GoloFunction extends ExpressionStatement {
@@ -159,5 +162,10 @@ public final class GoloFunction extends ExpressionStatement {
 
   public void accept(GoloIrVisitor visitor) {
     visitor.visitFunction(this);
+  }
+  
+  @Override
+  public Function accept(final TruffleGenerationGoloIrVisitor visitor) {
+    return visitor.visitFunction(this);
   }
 }

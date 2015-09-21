@@ -12,6 +12,10 @@ package fr.insalyon.citi.golo.compiler.ir;
 import java.util.LinkedList;
 import java.util.List;
 
+import com.oracle.truffle.api.nodes.Node;
+
+import fr.insalyon.citi.golo.compiler.TruffleGenerationGoloIrVisitor;
+import gololang.truffle.ExpressionNode;
 import static java.util.Collections.unmodifiableList;
 
 public final class Block extends ExpressionStatement {
@@ -62,5 +66,10 @@ public final class Block extends ExpressionStatement {
 
   public void accept(GoloIrVisitor visitor) {
     visitor.visitBlock(this);
+  }
+  
+  @Override
+  public ExpressionNode accept(final TruffleGenerationGoloIrVisitor visitor) {
+    return visitor.visitBlock(this);
   }
 }

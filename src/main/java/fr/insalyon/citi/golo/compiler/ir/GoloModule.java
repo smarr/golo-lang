@@ -10,6 +10,7 @@
 package fr.insalyon.citi.golo.compiler.ir;
 
 import fr.insalyon.citi.golo.compiler.PackageAndClass;
+import fr.insalyon.citi.golo.compiler.TruffleGenerationGoloIrVisitor;
 import fr.insalyon.citi.golo.compiler.utils.Register;
 import fr.insalyon.citi.golo.compiler.utils.AbstractRegister;
 
@@ -161,6 +162,10 @@ public final class GoloModule extends GoloElement {
   }
 
   public void accept(GoloIrVisitor visitor) {
+    visitor.visitModule(this);
+  }
+  
+  public void accept(final TruffleGenerationGoloIrVisitor visitor) {
     visitor.visitModule(this);
   }
 

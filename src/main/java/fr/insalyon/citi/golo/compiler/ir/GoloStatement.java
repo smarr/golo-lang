@@ -9,10 +9,19 @@
 
 package fr.insalyon.citi.golo.compiler.ir;
 
+import com.oracle.truffle.api.nodes.Node;
+
+import fr.insalyon.citi.golo.compiler.TruffleGenerationGoloIrVisitor;
+import gololang.truffle.NotYetImplemented;
+
 public abstract class GoloStatement extends GoloElement {
 
   public GoloStatement() {
   }
 
   public abstract void accept(GoloIrVisitor visitor);
+
+  public Node accept(TruffleGenerationGoloIrVisitor visitor) {
+	  throw new NotYetImplemented();
+  }
 }

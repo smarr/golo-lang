@@ -9,6 +9,10 @@
 
 package fr.insalyon.citi.golo.compiler.ir;
 
+import com.oracle.truffle.api.nodes.Node;
+
+import fr.insalyon.citi.golo.compiler.TruffleGenerationGoloIrVisitor;
+
 public final class ConditionalBranching extends GoloStatement {
 
   private final ExpressionStatement condition;
@@ -69,5 +73,10 @@ public final class ConditionalBranching extends GoloStatement {
   @Override
   public void accept(GoloIrVisitor visitor) {
     visitor.visitConditionalBranching(this);
+  }
+  
+  @Override
+  public Node accept(final TruffleGenerationGoloIrVisitor visitor) {
+    return visitor.visitConditionalBranching(this);
   }
 }

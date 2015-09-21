@@ -9,6 +9,10 @@
 
 package fr.insalyon.citi.golo.compiler.ir;
 
+import com.oracle.truffle.api.nodes.Node;
+
+import fr.insalyon.citi.golo.compiler.TruffleGenerationGoloIrVisitor;
+
 public class ConstantStatement extends ExpressionStatement {
 
   private final Object value;
@@ -25,5 +29,10 @@ public class ConstantStatement extends ExpressionStatement {
   @Override
   public void accept(GoloIrVisitor visitor) {
     visitor.visitConstantStatement(this);
+  }
+  
+  @Override
+  public Node accept(final TruffleGenerationGoloIrVisitor visitor) {
+    return visitor.visitConstantStatement(this);
   }
 }
