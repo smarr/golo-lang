@@ -60,7 +60,6 @@ public class TruffleGenerationGoloIrVisitor {
 
   private static class Context {
     private final Deque<ReferenceTable> referenceTableStack = new LinkedList<>();
-    private final Deque<FrameDescriptor> frameDescriptors   = new LinkedList<>();
   }
 
   public void generateRepresentation(final GoloModule module) {
@@ -78,14 +77,8 @@ public class TruffleGenerationGoloIrVisitor {
   }
 
   public Function visitFunction(final GoloFunction function) {
-    FrameDescriptor frameDesc = new FrameDescriptor(null);
-    context.frameDescriptors.push(frameDesc);
-
-    if (function.isDecorated()) { NotYetImplemented.t(); }
-
     ExpressionNode body = function.getBlock().accept(this);
-    context.frameDescriptors.pop();
-    return new Function(body, function, frameDesc);
+    return new Function(body, function, new FrameDescriptor(null));
   }
 
   public ExpressionNode visitBlock(final Block block) {
