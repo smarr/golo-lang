@@ -7,8 +7,6 @@
 
 module samples.Fibonacci
 
-import java.lang.System
-
 function fib = |n| {
   if n < 2 {
     return n
