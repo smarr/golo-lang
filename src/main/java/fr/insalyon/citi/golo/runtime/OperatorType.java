@@ -9,17 +9,40 @@
 
 package fr.insalyon.citi.golo.runtime;
 
+import gololang.truffle.ExpressionNode;
+import gololang.truffle.NotYetImplemented;
+import gololang.truffle.nodes.binary.BinaryNode;
+import gololang.truffle.nodes.binary.LessThanNodeGen;
+import gololang.truffle.nodes.binary.MinusNodeGen;
+import gololang.truffle.nodes.binary.PlusNodeGen;
+
+
 public enum OperatorType {
 
-  PLUS("+"),
-  MINUS("-"),
+  PLUS("+") {
+	 @Override
+    public BinaryNode createNode(final ExpressionNode left, final ExpressionNode right) {
+      return PlusNodeGen.create(left, right);
+    }
+  },
+  MINUS("-") {
+    @Override
+    public BinaryNode createNode(final ExpressionNode left, final ExpressionNode right) {
+      return MinusNodeGen.create(left, right);
+    }
+  },
   TIMES("*"),
   DIVIDE("/"),
   MODULO("%"),
 
   EQUALS("=="),
   NOTEQUALS("!="),
-  LESS("<"),
+  LESS("<") {
+    @Override
+    public BinaryNode createNode(final ExpressionNode left, final ExpressionNode right) {
+      return LessThanNodeGen.create(left, right);
+    }
+  },
   LESSOREQUALS("<="),
   MORE(">"),
   MOREOREQUALS(">="),
@@ -53,4 +76,6 @@ public enum OperatorType {
   public String toString() {
     return symbol;
   }
+  
+  public ExpressionNode createNode(ExpressionNode left, ExpressionNode right) { throw new NotYetImplemented(); };
 }
