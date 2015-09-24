@@ -18,6 +18,7 @@ public final class LocalReference {
   private final Kind kind;
   private final String name;
   private final boolean synthetic;
+  private final boolean isArgument;
 
   private int index = -1;
 
@@ -25,12 +26,22 @@ public final class LocalReference {
     this.kind = kind;
     this.name = name;
     this.synthetic = false;
+    this.isArgument = false;
+  }
+
+  public LocalReference(boolean isArgument, String name) {
+    this.kind = Kind.CONSTANT;
+    this.name = name;
+    assert isArgument == true;
+    this.isArgument = true;
+    this.synthetic = false;
   }
 
   public LocalReference(Kind kind, String name, boolean synthetic) {
     this.kind = kind;
     this.name = name;
     this.synthetic = synthetic;
+    this.isArgument = false;
   }
 
   public Kind getKind() {
@@ -43,6 +54,10 @@ public final class LocalReference {
 
   public boolean isSynthetic() {
     return synthetic;
+  }
+  
+  public boolean isArgument() {
+	return isArgument;
   }
 
   public boolean isModuleState() {

@@ -361,7 +361,7 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
     Block functionBlock = function.getBlock();
     ReferenceTable referenceTable = functionBlock.getReferenceTable();
     for (String parameter : function.getParameterNames()) {
-      referenceTable.add(new LocalReference(CONSTANT, parameter));
+      referenceTable.add(new LocalReference(true, parameter));
     }
     insertMissingReturnStatement(function);
     if (isSynthetic) {
