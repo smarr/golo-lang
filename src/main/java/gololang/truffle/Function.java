@@ -1,5 +1,6 @@
 package gololang.truffle;
 
+import com.oracle.truffle.api.Truffle;
 import com.oracle.truffle.api.frame.FrameDescriptor;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.RootNode;
@@ -18,6 +19,7 @@ public final class Function extends RootNode {
     this.expr = expr;
     this.function = function;
     this.function.setTruffleFunction(this);
+    Truffle.getRuntime().createCallTarget(this);
   }
 
   @Override
