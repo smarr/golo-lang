@@ -121,6 +121,30 @@ public final class FunctionCallSupport {
     Class<?> callerClass = caller.lookupClass();
     String[] argumentNames = callSite.argumentNames;
 
+    MethodHandle handle = lookup(callSite, args, functionName, type, caller,
+        callerClass, argumentNames);
+
+    if (callSite.constant) {
+      Object constantValue = handle.invokeWithArguments(args);
+      MethodHandle constant;
+      if (constantValue == null) {
+        constant = MethodHandles.constant(Object.class, constantValue);
+      } else {
+        constant = MethodHandles.constant(constantValue.getClass(), constantValue);
+      }
+      constant = MethodHandles.dropArguments(constant, 0, type.parameterArray());
+      callSite.setTarget(constant.asType(type));
+      return constantValue;
+    } else {
+      callSite.setTarget(handle);
+      return handle.invokeWithArguments(args);
+    }
+  }
+
+  public static MethodHandle lookup(final FunctionCallSite callSite, final Object[] args,
+      final String functionName, final MethodType type, final Lookup caller,
+      final Class<?> callerClass, final String[] argumentNames) throws NoSuchMethodError,
+      IllegalAccessException {
     MethodHandle handle = null;
     Object result = findStaticMethodOrField(callerClass, functionName, args);
     if (result == null) {
@@ -170,22 +194,7 @@ public final class FunctionCallSupport {
       handle = caller.unreflectGetter(field).asType(type);
     }
     handle = insertSAMFilter(handle, callSite.callerLookup, types, 0);
-
-    if (callSite.constant) {
-      Object constantValue = handle.invokeWithArguments(args);
-      MethodHandle constant;
-      if (constantValue == null) {
-        constant = MethodHandles.constant(Object.class, constantValue);
-      } else {
-        constant = MethodHandles.constant(constantValue.getClass(), constantValue);
-      }
-      constant = MethodHandles.dropArguments(constant, 0, type.parameterArray());
-      callSite.setTarget(constant.asType(type));
-      return constantValue;
-    } else {
-      callSite.setTarget(handle);
-      return handle.invokeWithArguments(args);
-    }
+    return handle;
   }
 
   public static MethodHandle reorderArguments(Method method, MethodHandle handle, String[] argumentNames) {
@@ -222,7 +231,7 @@ public final class FunctionCallSupport {
     return handle;
   }
 
-  private static void checkLocalFunctionCallFromSameModuleAugmentation(Method method, String callerClassName) {
+  public static void checkLocalFunctionCallFromSameModuleAugmentation(Method method, String callerClassName) {
     if (isPrivate(method.getModifiers()) && callerClassName.contains("$")) {
       String prefix = callerClassName.substring(0, callerClassName.indexOf("$"));
       if (method.getDeclaringClass().getName().equals(prefix)) {
@@ -310,7 +319,7 @@ public final class FunctionCallSupport {
     return null;
   }
 
-  private static Object findStaticMethodOrField(Class<?> klass, String name, Object[] arguments) {
+  public static Object findStaticMethodOrField(Class<?> klass, String name, Object[] arguments) {
     for (Method method : klass.getDeclaredMethods()) {
       if (methodMatches(name, arguments, method)) {
         return method;
