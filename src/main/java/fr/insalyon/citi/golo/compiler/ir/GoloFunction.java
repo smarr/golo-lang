@@ -12,9 +12,11 @@ package fr.insalyon.citi.golo.compiler.ir;
 import java.util.LinkedList;
 import java.util.List;
 
+import com.oracle.truffle.api.CompilerDirectives.CompilationFinal;
 import com.oracle.truffle.api.nodes.Node;
 
 import fr.insalyon.citi.golo.compiler.TruffleGenerationGoloIrVisitor;
+import gololang.truffle.Function;
 import static java.util.Collections.unmodifiableList;
 
 public final class GoloFunction extends ExpressionStatement {
@@ -41,6 +43,9 @@ public final class GoloFunction extends ExpressionStatement {
   private String syntheticSelfName = null;
   private String decoratorRef = null;
   private LinkedList<Decorator> decorators = new LinkedList<>();
+  
+  @CompilationFinal
+  private Function truffleFunction;
 
   public GoloFunction(String name, Visibility visibility, Scope scope) {
     this.name = name;
@@ -48,6 +53,15 @@ public final class GoloFunction extends ExpressionStatement {
     this.scope = scope;
   }
 
+  public Function getTruffleFunction() {
+    return truffleFunction;
+  }
+
+  public void setTruffleFunction(final Function fun) {
+    assert truffleFunction == null;
+    truffleFunction = fun;
+  }
+  
   public Scope getScope() {
     return scope;
   }
