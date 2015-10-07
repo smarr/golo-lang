@@ -39,6 +39,7 @@ import fr.insalyon.citi.golo.compiler.ir.LoopStatement;
 import fr.insalyon.citi.golo.compiler.ir.ReferenceLookup;
 import fr.insalyon.citi.golo.compiler.ir.ReferenceTable;
 import fr.insalyon.citi.golo.compiler.ir.ReturnStatement;
+import fr.insalyon.citi.golo.compiler.ir.UnaryOperation;
 import fr.insalyon.citi.golo.runtime.OperatorType;
 import gololang.truffle.EvalArgumentsNode;
 import gololang.truffle.ExpressionNode;
@@ -60,7 +61,7 @@ import gololang.truffle.nodes.controlflow.FunctionInvocationNode;
 import gololang.truffle.nodes.controlflow.IfNode;
 import gololang.truffle.nodes.controlflow.ReturnNode;
 import gololang.truffle.nodes.controlflow.SequenceNode;
-import gololang.truffle.LiteralNode.NullLiteralNode;
+import gololang.truffle.nodes.unary.UnaryNode;
 
 
 public class TruffleGenerationGoloIrVisitor {
@@ -249,5 +250,11 @@ public class TruffleGenerationGoloIrVisitor {
     } else {
       throw new NotYetImplemented();
     }
+  }
+
+  public UnaryNode visitUnaryOperation(final UnaryOperation unaryOperation) {
+    OperatorType operatorType = unaryOperation.getType();
+    return (UnaryNode) operatorType.createNode(
+        (ExpressionNode) unaryOperation.getExpressionStatement().accept(this), null);
   }
 }

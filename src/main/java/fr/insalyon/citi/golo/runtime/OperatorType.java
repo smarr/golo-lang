@@ -23,6 +23,8 @@ import gololang.truffle.nodes.binary.MinusNodeGen;
 import gololang.truffle.nodes.binary.NotEqualNodeGen;
 import gololang.truffle.nodes.binary.PlusNodeGen;
 import gololang.truffle.nodes.binary.TimesNodeGen;
+import gololang.truffle.nodes.unary.UnaryNode;
+import gololang.truffle.nodes.unary.NotNodeGen;
 
 
 public enum OperatorType {
@@ -101,7 +103,12 @@ public enum OperatorType {
 
   AND("and"),
   OR("or"),
-  NOT("not"),
+  NOT("not") {
+    @Override
+    public UnaryNode createNode(final ExpressionNode left, final ExpressionNode right) {
+      return NotNodeGen.create(left);
+    }
+  },
 
   IS("is"),
   ISNT("isnt"),

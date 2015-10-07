@@ -9,6 +9,9 @@
 
 package fr.insalyon.citi.golo.compiler.ir;
 
+import com.oracle.truffle.api.nodes.Node;
+
+import fr.insalyon.citi.golo.compiler.TruffleGenerationGoloIrVisitor;
 import fr.insalyon.citi.golo.runtime.OperatorType;
 
 public class UnaryOperation extends ExpressionStatement {
@@ -33,5 +36,10 @@ public class UnaryOperation extends ExpressionStatement {
   @Override
   public void accept(GoloIrVisitor visitor) {
     visitor.visitUnaryOperation(this);
+  }
+  
+  @Override
+  public Node accept(final TruffleGenerationGoloIrVisitor visitor) {
+    return visitor.visitUnaryOperation(this);
   }
 }
