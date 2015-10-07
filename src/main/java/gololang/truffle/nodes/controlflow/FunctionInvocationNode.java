@@ -10,7 +10,7 @@ import gololang.truffle.ExpressionNode;
 import gololang.truffle.Function;
 import gololang.truffle.NotYetImplemented;
 import gololang.truffle.PreEvaluated;
-import gololang.truffle.unary.PrintlnNodeGen;
+import gololang.truffle.nodes.unary.PrintlnNodeGen;
 
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodType;

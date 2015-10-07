@@ -1,4 +1,4 @@
-package gololang.truffle.unary;
+package gololang.truffle.nodes.unary;
 
 import gololang.truffle.PreEvaluated;
 
