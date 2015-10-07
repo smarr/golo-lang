@@ -10,6 +10,8 @@ import gololang.truffle.ExpressionNode;
 import gololang.truffle.Function;
 import gololang.truffle.NotYetImplemented;
 import gololang.truffle.PreEvaluated;
+import gololang.truffle.nodes.unary.DoubleValueNodeGen;
+import gololang.truffle.nodes.unary.IntValueNodeGen;
 import gololang.truffle.nodes.unary.PrintlnNodeGen;
 
 import java.lang.invoke.MethodHandle;
@@ -18,7 +20,6 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.util.Set;
 
-import com.oracle.truffle.api.CallTarget;
 import com.oracle.truffle.api.Truffle;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.DirectCallNode;
@@ -168,6 +169,10 @@ public abstract class FunctionInvocationNode extends ExpressionNode implements P
 
           if (importClass == Predefined.class) {
             switch (lookup) {
+              case "intValue":
+                return IntValueNodeGen.create(argumentsNode.getArgumentNodes()[0]);
+              case "doubleValue":
+                return DoubleValueNodeGen.create(argumentsNode.getArgumentNodes()[0]);
               case "println":
                 return PrintlnNodeGen.create(argumentsNode.getArgumentNodes()[0]);
             }
