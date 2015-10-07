@@ -17,6 +17,18 @@ public abstract class ExpressionNode extends Node {
 	return TypesGen.expectBoolean(executeGeneric(frame));
   }
 
+  public long executeLong(final VirtualFrame frame) throws UnexpectedResultException {
+	return TypesGen.expectLong(executeGeneric(frame));
+  }
+
+  public double executeDouble(final VirtualFrame frame) throws UnexpectedResultException {
+	return TypesGen.expectDouble(executeGeneric(frame));
+  }
+
+  public String executeString(final VirtualFrame frame) throws UnexpectedResultException {
+	return TypesGen.expectString(executeGeneric(frame));
+  }
+
   public Object[] executeObjectArray(final VirtualFrame frame) throws UnexpectedResultException {
 	return TypesGen.expectObjectArray(executeGeneric(frame));
   }
