@@ -9,6 +9,10 @@
 
 package fr.insalyon.citi.golo.compiler.ir;
 
+import com.oracle.truffle.api.nodes.Node;
+
+import fr.insalyon.citi.golo.compiler.TruffleGenerationGoloIrVisitor;
+
 public class LoopStatement extends GoloStatement {
 
   private final AssignmentStatement initStatement;
@@ -66,5 +70,10 @@ public class LoopStatement extends GoloStatement {
   @Override
   public void accept(GoloIrVisitor visitor) {
     visitor.visitLoopStatement(this);
+  }
+  
+  @Override
+  public Node accept(final TruffleGenerationGoloIrVisitor visitor) {
+    return visitor.visitLoopStatement(this);
   }
 }

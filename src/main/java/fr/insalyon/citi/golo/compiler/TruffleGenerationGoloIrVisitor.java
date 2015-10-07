@@ -34,6 +34,8 @@ import fr.insalyon.citi.golo.compiler.ir.GoloFunction;
 import fr.insalyon.citi.golo.compiler.ir.GoloModule;
 import fr.insalyon.citi.golo.compiler.ir.GoloStatement;
 import fr.insalyon.citi.golo.compiler.ir.LocalReference;
+import fr.insalyon.citi.golo.compiler.ir.LoopBreakFlowStatement;
+import fr.insalyon.citi.golo.compiler.ir.LoopStatement;
 import fr.insalyon.citi.golo.compiler.ir.ReferenceLookup;
 import fr.insalyon.citi.golo.compiler.ir.ReferenceTable;
 import fr.insalyon.citi.golo.compiler.ir.ReturnStatement;
@@ -52,6 +54,8 @@ import gololang.truffle.LiteralNode.TrueLiteralNode;
 import gololang.truffle.LocalArgumentReadNode;
 import gololang.truffle.NotYetImplemented;
 import gololang.truffle.nodes.binary.BinaryNode;
+import gololang.truffle.nodes.controlflow.BreakLoopNode;
+import gololang.truffle.nodes.controlflow.ForLoopNode;
 import gololang.truffle.nodes.controlflow.FunctionInvocationNode;
 import gololang.truffle.nodes.controlflow.IfNode;
 import gololang.truffle.nodes.controlflow.ReturnNode;
@@ -205,6 +209,35 @@ public class TruffleGenerationGoloIrVisitor {
       elseNode = null;
     }
     return new IfNode(condition, thenNode, elseNode);
+  }
+
+  public ExpressionNode visitLoopStatement(final LoopStatement loopStatement) {
+    // TODO: it seems like the loops do not have their own scope. if they do, we should adapt the loop node to use a separate frame
+    ExpressionNode init;
+    if (loopStatement.hasInitStatement()) {
+      init = (ExpressionNode) loopStatement.getInitStatement().accept(this);
+    } else {
+      init = null;
+    }
+
+    ExpressionNode condition = (ExpressionNode) loopStatement.getConditionStatement().accept(this);
+    ExpressionNode body      = loopStatement.getBlock().accept(this);
+
+    ExpressionNode post;
+    if (loopStatement.hasPostStatement()) {
+      post = (ExpressionNode) loopStatement.getPostStatement().accept(this);
+    } else {
+      post = null;
+    }
+    return new ForLoopNode(init, condition, body, post);
+  }
+
+  public ExpressionNode visitLoopBreakFlowStatement(final LoopBreakFlowStatement loopBreakFlowStatement) {
+    if (LoopBreakFlowStatement.Type.BREAK.equals(loopBreakFlowStatement.getType())) {
+      return new BreakLoopNode();
+    } else {
+      throw new NotYetImplemented();
+    }
   }
 
   public BinaryNode visitBinaryOperation(final BinaryOperation binaryOperation) {
