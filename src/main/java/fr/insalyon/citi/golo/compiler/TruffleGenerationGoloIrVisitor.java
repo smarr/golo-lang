@@ -42,7 +42,13 @@ import gololang.truffle.EvalArgumentsNode;
 import gololang.truffle.ExpressionNode;
 import gololang.truffle.Function;
 import gololang.truffle.LiteralNode;
+import gololang.truffle.LiteralNode.DoubleLiteralNode;
+import gololang.truffle.LiteralNode.FalseLiteralNode;
 import gololang.truffle.LiteralNode.IntegerLiteralNode;
+import gololang.truffle.LiteralNode.LongLiteralNode;
+import gololang.truffle.LiteralNode.NullLiteralNode;
+import gololang.truffle.LiteralNode.StringLiteralNode;
+import gololang.truffle.LiteralNode.TrueLiteralNode;
 import gololang.truffle.LocalArgumentReadNode;
 import gololang.truffle.NotYetImplemented;
 import gololang.truffle.nodes.binary.BinaryNode;
@@ -98,7 +104,7 @@ public class TruffleGenerationGoloIrVisitor {
 
   private ExpressionNode createSequence(final List<ExpressionNode> statements) {
     if (statements.size() == 0) {
-      throw new NotYetImplemented();
+      return new NullLiteralNode();
     }
     if (statements.size() == 1) {
       return statements.get(0);
@@ -119,6 +125,23 @@ public class TruffleGenerationGoloIrVisitor {
     }
     if (value instanceof Integer) {
       return new IntegerLiteralNode((Integer) value);
+    }
+    if (value instanceof Long) {
+      return new LongLiteralNode((Long) value);
+    }
+    if (value instanceof Boolean) {
+      if ((Boolean) value) {
+        return new TrueLiteralNode();
+      } else {
+        return new FalseLiteralNode();
+      }
+    }
+    if (value instanceof String) {
+      return new StringLiteralNode((String) value);
+    }
+
+    if (value instanceof Double) {
+      return new DoubleLiteralNode((Double) value);
     }
     throw new NotYetImplemented();
   }
