@@ -12,9 +12,17 @@ package fr.insalyon.citi.golo.runtime;
 import gololang.truffle.ExpressionNode;
 import gololang.truffle.NotYetImplemented;
 import gololang.truffle.nodes.binary.BinaryNode;
+import gololang.truffle.nodes.binary.BitLeftShiftNodeGen;
+import gololang.truffle.nodes.binary.BitOrNodeGen;
+import gololang.truffle.nodes.binary.BitXorNodeGen;
+import gololang.truffle.nodes.binary.DivideNodeGen;
+import gololang.truffle.nodes.binary.EqualNodeGen;
+import gololang.truffle.nodes.binary.GreaterThanNodeGen;
 import gololang.truffle.nodes.binary.LessThanNodeGen;
 import gololang.truffle.nodes.binary.MinusNodeGen;
+import gololang.truffle.nodes.binary.NotEqualNodeGen;
 import gololang.truffle.nodes.binary.PlusNodeGen;
+import gololang.truffle.nodes.binary.TimesNodeGen;
 
 
 public enum OperatorType {
@@ -31,12 +39,32 @@ public enum OperatorType {
       return MinusNodeGen.create(left, right);
     }
   },
-  TIMES("*"),
-  DIVIDE("/"),
+  TIMES("*") {
+    @Override
+    public BinaryNode createNode(final ExpressionNode left, final ExpressionNode right) {
+      return TimesNodeGen.create(left, right);
+    }
+  },
+  DIVIDE("/") {
+    @Override
+    public BinaryNode createNode(final ExpressionNode left, final ExpressionNode right) {
+      return DivideNodeGen.create(left, right);
+    }
+  },
   MODULO("%"),
 
-  EQUALS("=="),
-  NOTEQUALS("!="),
+  EQUALS("==") {
+    @Override
+    public BinaryNode createNode(final ExpressionNode left, final ExpressionNode right) {
+      return EqualNodeGen.create(left, right);
+    }
+  },
+  NOTEQUALS("!=") {
+    @Override
+    public BinaryNode createNode(final ExpressionNode left, final ExpressionNode right) {
+      return NotEqualNodeGen.create(left, right);
+    }
+  },
   LESS("<") {
     @Override
     public BinaryNode createNode(final ExpressionNode left, final ExpressionNode right) {
@@ -44,12 +72,32 @@ public enum OperatorType {
     }
   },
   LESSOREQUALS("<="),
-  MORE(">"),
+  MORE(">") {
+    @Override
+    public BinaryNode createNode(final ExpressionNode left, final ExpressionNode right) {
+      return GreaterThanNodeGen.create(left, right);
+    }
+  },
   MOREOREQUALS(">="),
 
-  BIT_OR("bitOR"),
-  BIT_XOR("bitXOR"),
-  BIT_LSHIFT("bitLSHIFT"),
+  BIT_OR("bitOR") {
+    @Override
+    public BinaryNode createNode(final ExpressionNode left, final ExpressionNode right) {
+      return BitOrNodeGen.create(left, right);
+    }
+  },
+  BIT_XOR("bitXOR") {
+    @Override
+    public BinaryNode createNode(final ExpressionNode left, final ExpressionNode right) {
+      return BitXorNodeGen.create(left, right);
+    }
+  },
+  BIT_LSHIFT("bitLSHIFT") {
+    @Override
+    public BinaryNode createNode(final ExpressionNode left, final ExpressionNode right) {
+      return BitLeftShiftNodeGen.create(left, right);
+    }
+  },
 
   AND("and"),
   OR("or"),
