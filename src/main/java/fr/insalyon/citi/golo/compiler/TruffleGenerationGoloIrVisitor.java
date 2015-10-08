@@ -22,8 +22,10 @@ import java.util.LinkedList;
 import java.util.List;
 
 import com.oracle.truffle.api.frame.FrameDescriptor;
+import com.oracle.truffle.api.frame.FrameSlot;
 
 import fr.insalyon.citi.golo.compiler.ir.AbstractInvocation;
+import fr.insalyon.citi.golo.compiler.ir.AssignmentStatement;
 import fr.insalyon.citi.golo.compiler.ir.BinaryOperation;
 import fr.insalyon.citi.golo.compiler.ir.Block;
 import fr.insalyon.citi.golo.compiler.ir.ConditionalBranching;
@@ -53,6 +55,8 @@ import gololang.truffle.LiteralNode.NullLiteralNode;
 import gololang.truffle.LiteralNode.StringLiteralNode;
 import gololang.truffle.LiteralNode.TrueLiteralNode;
 import gololang.truffle.LocalArgumentReadNode;
+import gololang.truffle.LocalVariableReadNodeGen;
+import gololang.truffle.LocalVariableWriteNodeGen;
 import gololang.truffle.NotYetImplemented;
 import gololang.truffle.nodes.binary.BinaryNode;
 import gololang.truffle.nodes.controlflow.BreakLoopNode;
@@ -71,6 +75,7 @@ public class TruffleGenerationGoloIrVisitor {
 
   private static class Context {
     private final Deque<ReferenceTable> referenceTableStack = new LinkedList<>();
+    private final Deque<FrameDescriptor> frameDescriptors   = new LinkedList<>();
   }
 
   public void generateRepresentation(final GoloModule module) {
@@ -88,8 +93,14 @@ public class TruffleGenerationGoloIrVisitor {
   }
 
   public Function visitFunction(final GoloFunction function) {
+    FrameDescriptor frameDesc = new FrameDescriptor(null);
+    context.frameDescriptors.push(frameDesc);
+
+    if (function.isDecorated()) { NotYetImplemented.t(); }
+
     ExpressionNode body = function.getBlock().accept(this);
-    return new Function(body, function, new FrameDescriptor(null));
+    context.frameDescriptors.pop();
+    return new Function(body, function, frameDesc);
   }
 
   public ExpressionNode visitBlock(final Block block) {
@@ -186,6 +197,23 @@ public class TruffleGenerationGoloIrVisitor {
     return FunctionInvocationNode.create(functionInvocation.getName(), module, new EvalArgumentsNode(arguments));
   }
 
+  public ExpressionNode visitAssignmentStatement(final AssignmentStatement assignmentStatement) {
+    LocalReference reference = assignmentStatement.getLocalReference();
+    if (reference.isModuleState()) {
+      throw new NotYetImplemented();
+    } else {
+      FrameSlot slot = getFrameSlot(reference);
+      return LocalVariableWriteNodeGen.create(
+          slot, (ExpressionNode) assignmentStatement.getExpressionStatement().accept(this));
+    }
+  }
+
+  private FrameSlot getFrameSlot(final LocalReference reference) {
+    // TODO: might want to specialize this later on
+    FrameSlot slot = context.frameDescriptors.peek().findOrAddFrameSlot(reference.getName());
+    return slot;
+  }
+
   public ExpressionNode visitReferenceLookup(final ReferenceLookup referenceLookup) {
     LocalReference reference = referenceLookup.resolveIn(context.referenceTableStack.peek());
     if (reference.isModuleState()) {
@@ -193,7 +221,8 @@ public class TruffleGenerationGoloIrVisitor {
     } else if (reference.isArgument()) {
       return new LocalArgumentReadNode(reference.getIndex());
     } else {
-      throw new NotYetImplemented();
+      FrameSlot slot = getFrameSlot(reference);
+      return LocalVariableReadNodeGen.create(slot);
     }
   }
 
