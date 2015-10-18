@@ -15,6 +15,8 @@ import gololang.truffle.nodes.unary.IntValueNodeGen;
 import gololang.truffle.nodes.unary.PrintlnNodeGen;
 
 import java.lang.invoke.MethodHandle;
+import java.lang.invoke.MethodHandles;
+import java.lang.invoke.MethodHandles.Lookup;
 import java.lang.invoke.MethodType;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
@@ -57,6 +59,23 @@ public abstract class FunctionInvocationNode extends ExpressionNode implements P
     return executeEvaluated(frame, args);
   }
 
+  protected static final class MethodHandleInvokeNode extends FunctionInvocationNode {
+    private final MethodHandle method;
+    public MethodHandleInvokeNode(final FunctionInvocationNode uninit, final MethodHandle method) {
+      super(uninit.name, uninit.module, uninit.argumentsNode);
+      this.method = method;
+    }
+
+    @Override
+    public Object executeEvaluated(final VirtualFrame frame, final Object[] args) {
+      try {
+        return method.invokeWithArguments(args);
+      } catch (Throwable e) {
+        throw new NotYetImplemented(); // TODO: think, we will need to wrap this one
+      }
+    }
+  }
+
   protected static final class DirectFunctionInvokeNode extends FunctionInvocationNode {
     @Child protected DirectCallNode call;
 
@@ -87,7 +106,9 @@ public abstract class FunctionInvocationNode extends ExpressionNode implements P
     private PreEvaluated specialize(final Object[] args) {
       Object lookupResult = lookup(args);
 
-      if (lookupResult instanceof Function) {
+      if (lookupResult instanceof MethodHandle) {
+        return replace(new MethodHandleInvokeNode(this, (MethodHandle) lookupResult));
+      } else if (lookupResult instanceof Function) {
         return replace(new DirectFunctionInvokeNode(this, (Function) lookupResult));
       } else if (lookupResult instanceof PreEvaluated) {
         return (PreEvaluated) replace((ExpressionNode) lookupResult);
@@ -223,7 +244,9 @@ public abstract class FunctionInvocationNode extends ExpressionNode implements P
       }
 
       if (result instanceof Method) {
-    	throw new NotYetImplemented();
+        Lookup caller = MethodHandles.lookup();
+        Method method = (Method) result;
+        return caller.unreflect(method);
       } else if (result instanceof Constructor) {
         throw new NotYetImplemented();
       } else if (result instanceof GoloFunction) {
