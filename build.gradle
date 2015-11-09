@@ -20,6 +20,9 @@ plugins {
 }
 
 repositories {
+  maven {
+    url "http://lafo.ssw.uni-linz.ac.at/nexus/content/repositories/releases/"
+  }
   jcenter()
 }
 
@@ -57,8 +60,9 @@ dependencies {
   compile 'com.beust:jcommander:1.48'
   compile 'com.github.rjeschke:txtmark:0.13'
   compile 'com.googlecode.json-simple:json-simple:1.1.1'
-  compile 'com.oracle:truffle-api:0.8'
-  apt     'com.oracle:truffle-dsl-processor:0.8'
+  compile 'com.oracle.truffle:truffle-api:0.9'
+  apt     'com.oracle.truffle:truffle-api:0.9'
+  apt     'com.oracle.truffle:truffle-dsl-processor:0.9'
 
   testCompile 'org.ow2.asm:asm-util:5.0.4'
   testCompile 'org.ow2.asm:asm-analysis:5.0.4'
